@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biochemistry Explorer: Proteins vs. Carbs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The application is structured into five thematic, tab-navigated sections: Home, Proteins, Carbohydrates, Compare & Apply, and a Quiz. This non-linear structure was chosen over the original slide-deck format to empower users to learn at their own pace and explore topics of interest freely. It promotes better understanding by grouping related concepts (e.g., all protein information in one place) and facilitates synthesis by having dedicated comparison and application sections. The user flow encourages exploration, starting with a general introduction and then diving into specifics, comparing concepts, and finally testing their knowledge, which is a more effective pedagogical approach than passive viewing. -->
+    <!-- Visualization & Content Choices: 
+        - Protein Synthesis/Carb Usage Process: (Goal: Organize) -> Interactive HTML/CSS flowcharts are used. On click, steps are highlighted. Justification: Visually demonstrates a sequence of events more effectively than static text. Method: Vanilla JS + CSS.
+        - Protein Structure Levels: (Goal: Inform/Organize) -> Clickable tabs reveal information about each of the four levels. Justification: Breaks down a complex topic into digestible, user-controlled chunks. Method: Vanilla JS.
+        - Types of Proteins/Carbs: (Goal: Inform) -> Interactive card grids. Justification: A modern, visually appealing way to present categorized information. Method: Vanilla JS.
+        - Comparison Chart: (Goal: Compare) -> A Bar Chart from Chart.js visualizes the primary roles (Build vs. Fuel). Justification: Provides an immediate, powerful visual contrast between the two macromolecules. Library: Chart.js (Canvas).
+        - Real-Life Applications: (Goal: Apply) -> Clickable scenarios update a content area. Justification: Directly connects abstract scientific concepts to tangible, real-world examples. Method: Vanilla JS.
+        - Quiz: (Goal: Assess) -> An interactive quiz with instant feedback. Justification: Reinforces learning through active recall. Method: Vanilla JS.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #343A40;
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-btn.active {
+            border-bottom-color: #007BFF;
+            color: #007BFF;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .interactive-step, .interactive-tab {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .interactive-step.active, .interactive-tab.active {
+            background-color: #007BFF;
+            color: white;
+            transform: scale(1.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #007BFF;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="min-h-screen container mx-auto px-4 py-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800">Biochemistry Explorer</h1>
+            <p class="text-lg text-gray-600 mt-2">An Interactive Journey into Proteins and Carbohydrates</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-gray-200 mb-8 flex-wrap">
+            <button class="nav-btn p-4 text-lg" data-target="home">Home</button>
+            <button class="nav-btn p-4 text-lg" data-target="proteins">Proteins</button>
+            <button class="nav-btn p-4 text-lg" data-target="carbs">Carbohydrates</button>
+            <button class="nav-btn p-4 text-lg" data-target="compare">Compare & Apply</button>
+            <button class="nav-btn p-4 text-lg" data-target="quiz">Quiz</button>
+        </nav>
+
+        <main>
+            <!-- Home Section -->
+            <section id="home" class="content-section text-center">
+                <h2 class="text-3xl font-bold mb-4 text-gray-700">Welcome, Future Biochemist!</h2>
+                <p class="max-w-3xl mx-auto text-gray-600 text-lg mb-6">
+                    Our bodies are incredible machines, powered by microscopic molecules. This guide explores two of the most important: proteins, the master builders, and carbohydrates, the essential fuel. Forget static slides; here, you can click, explore, and test your knowledge to truly understand how these molecules shape our lives. Use the tabs above to navigate between topics.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <div class="card bg-white p-6 rounded-lg border border-gray-200">
+                        <h3 class="text-2xl font-semibold mb-2 text-blue-600">Proteins: The Body's Builders</h3>
+                        <p>Discover how simple blocks called amino acids create complex structures that build everything from your muscles to your hair, and how their unique shapes define their jobs.</p>
+                    </div>
+                    <div class="card bg-white p-6 rounded-lg border border-gray-200">
+                        <h3 class="text-2xl font-semibold mb-2 text-green-600">Carbohydrates: The Body's Fuel</h3>
+                        <p>Learn how sugars provide the energy that powers every cell in your body, from a simple thought to a powerful sprint, and why not all carbs are created equal.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Proteins Section -->
+            <section id="proteins" class="content-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Diving Deep into Proteins</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">Proteins are the workhorses of the cell, performing a vast array of functions. Here, we'll explore how they are made, their intricate structures, and the different roles they play. Think of them as the versatile and essential "apps" running in the operating system of your body.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-start">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-center">How a Protein is Made</h3>
+                        <div id="protein-synthesis-flow" class="space-y-4">
+                            <!-- JS will populate this -->
+                        </div>
+                        <div id="protein-synthesis-explanation" class="mt-4 p-4 bg-gray-100 rounded-lg min-h-[100px]">
+                            Click a step to learn more.
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-center">The Four Levels of Structure</h3>
+                        <div class="flex justify-center space-x-2 mb-4 bg-gray-100 p-2 rounded-lg">
+                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="primary">Primary</button>
+                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="secondary">Secondary</button>
+                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="tertiary">Tertiary</button>
+                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="quaternary">Quaternary</button>
+                        </div>
+                        <div id="protein-structure-info" class="p-4 bg-gray-100 rounded-lg min-h-[150px]">
+                            Click a level to see its description.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12">
+                    <h3 class="text-2xl font-semibold mb-6 text-center">Types of Proteins & Their Jobs</h3>
+                    <div id="protein-types-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- JS will populate this -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Carbs Section -->
+            <section id="carbs" class="content-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Unpacking Carbohydrates</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">Carbohydrates are the primary source of energy for all living things. From simple sugars that provide a quick boost to complex starches that offer sustained fuel, this section explores their structure, how our bodies use them, and the different forms they take.</p>
+                </div>
+                
+                 <div class="grid md:grid-cols-2 gap-12 items-start">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-center">How Your Body Uses Carbs</h3>
+                        <div id="carb-usage-flow" class="space-y-4">
+                            <!-- JS will populate this -->
+                        </div>
+                        <div id="carb-usage-explanation" class="mt-4 p-4 bg-gray-100 rounded-lg min-h-[100px]">
+                            Click a step to learn more.
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-center">Types of Carbohydrates</h3>
+                         <div id="carb-types-grid" class="grid grid-cols-1 gap-4">
+                           <!-- JS will populate this -->
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="mt-12">
+                    <h3 class="text-2xl font-semibold mb-6 text-center">Storage Polysaccharides: A Comparison</h3>
+                    <div class="grid sm:grid-cols-3 gap-6 text-center">
+                         <div class="card bg-white p-6 rounded-lg border border-gray-200">
+                            <h4 class="font-bold text-xl mb-2 text-green-700">Starch</h4>
+                            <p>How plants store sugar. We can digest it for energy. Found in potatoes, rice, and wheat.</p>
+                        </div>
+                         <div class="card bg-white p-6 rounded-lg border border-gray-200">
+                            <h4 class="font-bold text-xl mb-2 text-yellow-700">Glycogen</h4>
+                            <p>How animals store sugar. Stored in our liver and muscles for quick energy release later.</p>
+                        </div>
+                         <div class="card bg-white p-6 rounded-lg border border-gray-200">
+                            <h4 class="font-bold text-xl mb-2 text-blue-700">Cellulose</h4>
+                            <p>Makes up plant cell walls. We can't digest it (fiber), but it's crucial for digestive health.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compare Section -->
+            <section id="compare" class="content-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Compare, Contrast & Apply</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">Understanding proteins and carbs individually is great, but seeing them side-by-side reveals their unique and complementary roles in our health. This section compares them directly and shows how this knowledge applies to everyday life, from the kitchen to athletic performance.</p>
+                </div>
+                
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-center">Proteins vs. Carbs: At a Glance</h3>
+                        <div class="chart-container">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                     <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-center">Key Differences</h3>
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="p-3 border-b-2 border-gray-300 bg-gray-100">Feature</th>
+                                    <th class="p-3 border-b-2 border-gray-300 bg-blue-50 text-blue-800">Protein</th>
+                                    <th class="p-3 border-b-2 border-gray-300 bg-green-50 text-green-800">Carbohydrate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-gray-200">
+                                    <td class="p-3 font-semibold">Primary Role</td>
+                                    <td class="p-3">Build & Repair</td>
+                                    <td class="p-3">Provide Energy</td>
+                                </tr>
+                                 <tr class="bg-gray-50 border-b border-gray-200">
+                                    <td class="p-3 font-semibold">Building Block</td>
+                                    <td class="p-3">Amino Acids</td>
+                                    <td class="p-3">Monosaccharides</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="p-3 font-semibold">Energy Use</td>
+                                    <td class="p-3">Secondary source</td>
+                                    <td class="p-3">Primary source</td>
+                                </tr>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <td class="p-3 font-semibold">Examples</td>
+                                    <td class="p-3">Enzymes, Keratin</td>
+                                    <td class="p-3">Glucose, Starch</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-12">
+                    <h3 class="text-2xl font-semibold mb-4 text-center">Real-Life Applications</h3>
+                    <div id="application-container" class="grid sm:grid-cols-3 gap-4">
+                        <!-- JS to populate -->
+                    </div>
+                    <div id="application-info" class="mt-4 p-6 bg-gray-100 rounded-lg min-h-[120px]">
+                        Click a scenario above to see how biochemistry applies.
+                    </div>
+                </div>
+
+                <div class="mt-12 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                    <h3 class="text-2xl font-semibold mb-4 text-center text-blue-800">✨ Ask the Biochemist!</h3>
+                    <p class="text-gray-700 mb-4 text-center">Have a question about proteins, carbohydrates, or how they work in your body? Ask our AI Biochemist!</p>
+                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <input type="text" id="biochemist-question" class="flex-1 p-3 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="E.g., What happens if I don't eat enough protein?">
+                        <button id="ask-biochemist-btn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                            Ask ✨ <span id="biochemist-spinner" class="loading-spinner hidden"></span>
+                        </button>
+                    </div>
+                    <div id="biochemist-answer" class="p-4 bg-white rounded-lg border border-blue-200 min-h-[80px] text-gray-800">
+                        Your answer will appear here.
+                    </div>
+                </div>
+
+                <div class="mt-8 p-6 bg-green-50 rounded-lg border border-green-200">
+                    <h3 class="text-2xl font-semibold mb-4 text-center text-green-800">✨ Meal Builder Assistant</h3>
+                    <p class="text-gray-700 mb-4 text-center">Get personalized meal suggestions based on your preferences, focusing on protein and carbohydrate balance!</p>
+                    <div class="flex flex-col md:flex-row gap-4 mb-4">
+                        <input type="text" id="meal-preferences" class="flex-1 p-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="E.g., Quick vegetarian high-protein breakfast">
+                        <button id="suggest-meal-btn" class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center">
+                            Suggest Meal ✨ <span id="meal-spinner" class="loading-spinner hidden"></span>
+                        </button>
+                    </div>
+                    <div id="meal-suggestion" class="p-4 bg-white rounded-lg border border-green-200 min-h-[150px] text-gray-800">
+                        Your meal suggestion will appear here.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quiz Section -->
+            <section id="quiz" class="content-section">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-800">Test Your Knowledge!</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">You've explored the world of proteins and carbohydrates. Now it's time to put your knowledge to the test with a quick quiz. Select your answer for each question and see how you do!</p>
+                </div>
+                <div id="quiz-container" class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                     <!-- JS to populate -->
+                </div>
+                 <div id="quiz-result" class="max-w-2xl mx-auto mt-6 text-center text-xl font-semibold"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        const proteinSynthesisData = [
+            { step: "Step 1: DNA Recipe", explanation: "It all starts with DNA, our body's master instruction book. A specific gene contains the 'recipe' for one protein." },
+            { step: "Step 2: RNA Copy", explanation: "A molecule called RNA acts as a messenger, creating a temporary copy of the DNA's recipe." },
+            { step: "Step 3: Ribosome Chef", explanation: "The RNA copy travels to a ribosome, a tiny 'chef' in the cell. The ribosome reads the recipe." },
+            { step: "Step 4: Folding into Shape", explanation: "The ribosome adds the correct amino acids in order, creating a chain that folds into a unique 3D shape. This final shape is the functional protein!" }
+        ];
+
+        const proteinStructureData = {
+            primary: "<strong>Primary (1°):</strong> This is the simplest level – just the specific sequence or order of amino acids in a chain, like letters in a word.",
+            secondary: "<strong>Secondary (2°):</strong> The amino acid chain starts to fold and coil into simple repeating patterns, most commonly spirals (alpha-helices) or zigzags (beta-sheets).",
+            tertiary: "<strong>Tertiary (3°):</strong> The entire chain, including its spirals and sheets, folds up into a complex, unique 3D blob. This final shape is crucial for the protein's job.",
+            quaternary: "<strong>Quaternary (4°):</strong> Some proteins are made of more than one amino acid chain (or 'blob'). This level describes how these multiple chains are stuck together to form a larger protein complex."
+        };
+
+        const proteinTypesData = [
+            { name: "Enzymes", description: "Speed up chemical reactions, like digesting food.", icon: "🔬" },
+            { name: "Structural", description: "Provide support and build body parts. Ex: Keratin in hair/nails, collagen in skin.", icon: "🏗️" },
+            { name: "Transport", description: "Carry molecules around the body. Ex: Hemoglobin carries oxygen in blood.", icon: "🚚" },
+            { name: "Defense", description: "Protect against infection. Ex: Antibodies fight off bacteria and viruses.", icon: "🛡️" },
+            { name: "Hormonal", description: "Act as chemical messengers. Ex: Insulin tells cells to take in sugar.", icon: "✉️" },
+            { name: "Motor", description: "Help with movement. Ex: Myosin in muscle cells.", icon: "💪" }
+        ];
+
+        const carbUsageData = [
+             { step: "Step 1: Eat Carbs", explanation: "You consume carbohydrates in foods like bread, pasta, or fruit." },
+             { step: "Step 2: Break Down", explanation: "Enzymes in your digestive system break down complex carbs into the simple sugar, glucose." },
+             { step: "Step 3: Enter Blood", explanation: "Glucose is absorbed from your intestines into your bloodstream, raising your blood sugar." },
+             { step: "Step 4: Enter Cells", explanation: "The hormone insulin acts like a key, helping glucose move from the blood into your body's cells." },
+             { step: "Step 5: Make Energy", explanation: "Inside the cells, glucose is used in a process called cellular respiration to create ATP, the main energy currency of the cell." }
+        ];
+
+        const carbTypesData = [
+            { name: "Monosaccharides", description: "<strong>'One Sugar'</strong> - The simplest form. Quick energy. Examples: Glucose (main fuel), Fructose (in fruit).", color: "bg-green-100" },
+            { name: "Disaccharides", description: "<strong>'Two Sugars'</strong> - Two monosaccharides linked together. Example: Sucrose (table sugar) = glucose + fructose.", color: "bg-yellow-100" },
+            { name: "Polysaccharides", description: "<strong>'Many Sugars'</strong> - Long chains of monosaccharides. Used for energy storage or structure. Examples: Starch, Glycogen, Cellulose.", color: "bg-blue-100" }
+        ];
+        
+        const applicationData = {
+            athlete: "An athlete eats a pasta dinner (high in carbs) before a race. The carbs are stored as glycogen in their muscles, providing a readily available source of quick energy during the competition.",
+            bodybuilder: "A bodybuilder consumes a protein shake after a workout. The amino acids from the protein are used to repair the tiny tears in muscle fibers caused by lifting weights, leading to muscle growth.",
+            diabetic: "A person with diabetes must carefully manage their carb intake because their body either doesn't produce enough insulin or can't use it effectively. This helps prevent dangerous spikes in blood sugar.",
+        };
+
+        const quizData = [
+            { question: "What is the primary function of carbohydrates in the body?", options: ["Building muscle", "Providing energy", "Fighting infections", "Storing genetic info"], answer: "Providing energy" },
+            { question: "The building blocks of proteins are called:", options: ["Glucose", "Fatty acids", "Amino acids", "Nucleotides"], answer: "Amino acids" },
+            { question: "Which of these is a complex carbohydrate that humans use for energy storage?", options: ["Cellulose", "Keratin", "Glycogen", "Antibodies"], answer: "Glycogen" },
+            { question: "Cooking an egg is an example of protein...", options: ["Synthesis", "Denaturation", "Digestion", "Transportation"], answer: "Denaturation" }
+        ];
+        
+        function init() {
+            // Initial state
+            showSection('home');
+            
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.dataset.target;
+                    showSection(target);
+                });
+            });
+
+            setupProteinSection();
+            setupCarbsSection();
+            setupCompareSection();
+            setupQuizSection();
+            setupGeminiFeatures();
+        }
+
+        function showSection(targetId) {
+            contentSections.forEach(section => {
+                section.classList.toggle('active', section.id === targetId);
+            });
+            navButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.target === targetId);
+            });
+            window.scrollTo(0, 0);
+        }
+        
+        function setupProteinSection() {
+            const flowContainer = document.getElementById('protein-synthesis-flow');
+            const explanationDiv = document.getElementById('protein-synthesis-explanation');
+            proteinSynthesisData.forEach((item, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'interactive-step p-4 bg-white border border-gray-200 rounded-lg shadow-sm text-center';
+                stepDiv.textContent = item.step;
+                stepDiv.dataset.index = index;
+                flowContainer.appendChild(stepDiv);
+                if(index < proteinSynthesisData.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'text-center text-2xl text-gray-400';
+                    arrow.textContent = '↓';
+                    flowContainer.appendChild(arrow);
+                }
+            });
+            
+            flowContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('interactive-step')) {
+                    const index = e.target.dataset.index;
+                    explanationDiv.innerHTML = proteinSynthesisData[index].explanation;
+                    flowContainer.querySelectorAll('.interactive-step').forEach(s => s.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+
+            const structureInfo = document.getElementById('protein-structure-info');
+            const structureTabs = document.querySelectorAll('#proteins .interactive-tab');
+            structureTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.target;
+                    structureInfo.innerHTML = proteinStructureData[target];
+                    structureTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            });
+
+            const typesGrid = document.getElementById('protein-types-grid');
+            proteinTypesData.forEach(pType => {
+                const card = document.createElement('div');
+                card.className = 'card bg-white p-6 rounded-lg border border-gray-200 text-center';
+                card.innerHTML = `<div class="text-4xl mb-4">${pType.icon}</div><h4 class="font-bold text-xl mb-2">${pType.name}</h4><p class="text-gray-600">${pType.description}</p>`;
+                typesGrid.appendChild(card);
+            });
+        }
+        
+        function setupCarbsSection() {
+            const flowContainer = document.getElementById('carb-usage-flow');
+            const explanationDiv = document.getElementById('carb-usage-explanation');
+            carbUsageData.forEach((item, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'interactive-step p-4 bg-white border border-gray-200 rounded-lg shadow-sm text-center';
+                stepDiv.textContent = item.step;
+                stepDiv.dataset.index = index;
+                flowContainer.appendChild(stepDiv);
+                if(index < carbUsageData.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'text-center text-2xl text-gray-400';
+                    arrow.textContent = '↓';
+                    flowContainer.appendChild(arrow);
+                }
+            });
+
+             flowContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('interactive-step')) {
+                    const index = e.target.dataset.index;
+                    explanationDiv.innerHTML = carbUsageData[index].explanation;
+                    flowContainer.querySelectorAll('.interactive-step').forEach(s => s.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+
+            const typesGrid = document.getElementById('carb-types-grid');
+            carbTypesData.forEach(cType => {
+                const card = document.createElement('div');
+                card.className = `card p-4 rounded-lg border border-gray-200 ${cType.color}`;
+                card.innerHTML = `<h4 class="font-semibold text-lg">${cType.name}</h4><p class="text-gray-700 text-sm">${cType.description}</p>`;
+                typesGrid.appendChild(card);
+            });
+        }
+
+        function setupCompareSection() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Protein', 'Carbohydrate'],
+                    datasets: [{
+                        label: 'Primary Role',
+                        data: [50, 100], 
+                        backgroundColor: [ 'rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)'],
+                        borderColor: [ 'rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
+                        borderWidth: 1,
+                        axis: 'y',
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    if (context.raw === 50) return 'Build & Repair';
+                                    if (context.raw === 100) return 'Provide Energy';
+                                    return '';
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Primary Role: Build vs. Fuel'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { display: false }
+                        }
+                    }
+                }
+            });
+
+            const appContainer = document.getElementById('application-container');
+            const appInfo = document.getElementById('application-info');
+            Object.keys(applicationData).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'interactive-tab p-3 rounded-md bg-white border border-gray-300 capitalize';
+                btn.textContent = key;
+                btn.dataset.target = key;
+                appContainer.appendChild(btn);
+            });
+            appContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('interactive-tab')) {
+                    const target = e.target.dataset.target;
+                    appInfo.innerHTML = applicationData[target];
+                    appContainer.querySelectorAll('.interactive-tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            });
+        }
+
+        function setupQuizSection() {
+            const quizContainer = document.getElementById('quiz-container');
+            const resultDiv = document.getElementById('quiz-result');
+            let score = 0;
+
+            quizData.forEach((item, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'mb-6';
+
+                const questionText = document.createElement('p');
+                questionText.className = 'font-semibold text-lg mb-3';
+                questionText.textContent = `${index + 1}. ${item.question}`;
+                questionBlock.appendChild(questionText);
+
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'space-y-2';
+                
+                // Shuffle options
+                const shuffledOptions = [...item.options].sort(() => Math.random() - 0.5);
+
+                shuffledOptions.forEach(option => {
+                    const label = document.createElement('label');
+                    label.className = 'block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer';
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `question-${index}`;
+                    input.value = option;
+                    input.className = 'mr-3';
+                    label.appendChild(input);
+                    label.append(option);
+                    optionsContainer.appendChild(label);
+                });
+                questionBlock.appendChild(optionsContainer);
+                quizContainer.appendChild(questionBlock);
+            });
+            
+            const submitButton = document.createElement('button');
+            submitButton.textContent = 'Check Answers';
+            submitButton.className = 'w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors mt-4';
+            quizContainer.appendChild(submitButton);
+
+            submitButton.addEventListener('click', () => {
+                score = 0;
+                quizData.forEach((item, index) => {
+                    const selected = quizContainer.querySelector(`input[name="question-${index}"]:checked`);
+                    if (selected) {
+                        const parentLabel = selected.parentElement;
+                        parentLabel.style.borderWidth = '2px';
+                        if (selected.value === item.answer) {
+                            score++;
+                            parentLabel.style.borderColor = 'green';
+                        } else {
+                           parentLabel.style.borderColor = 'red';
+                        }
+                    }
+                });
+                resultDiv.textContent = `You scored ${score} out of ${quizData.length}!`;
+                submitButton.disabled = true;
+                submitButton.textContent = 'Completed!';
+                submitButton.classList.add('bg-gray-500', 'hover:bg-gray-500');
+            });
+        }
+
+        async function callGeminiAPI(prompt, isStructured = false, schema = {}) {
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            let payload = { contents: chatHistory };
+            if (isStructured) {
+                payload.generationConfig = {
+                    responseMimeType: "application/json",
+                    responseSchema: schema
+                };
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    return isStructured ? JSON.parse(text) : text;
+                } else {
+                    console.error("Gemini API returned an unexpected structure:", result);
+                    return "Sorry, I couldn't get a response. Please try again.";
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                return "An error occurred while fetching the response. Please check your network connection.";
+            }
+        }
+
+        function setupGeminiFeatures() {
+            const askBiochemistBtn = document.getElementById('ask-biochemist-btn');
+            const biochemistQuestionInput = document.getElementById('biochemist-question');
+            const biochemistAnswerDiv = document.getElementById('biochemist-answer');
+            const biochemistSpinner = document.getElementById('biochemist-spinner');
+
+            askBiochemistBtn.addEventListener('click', async () => {
+                const question = biochemistQuestionInput.value.trim();
+                if (!question) {
+                    biochemistAnswerDiv.textContent = "Please enter a question.";
+                    return;
+                }
+
+                biochemistAnswerDiv.innerHTML = "";
+                biochemistSpinner.classList.remove('hidden');
+                askBiochemistBtn.disabled = true;
+
+                const prompt = `Act as an expert biochemist. Explain the following concept related to proteins or carbohydrates in a simple, clear, and concise way, suitable for a high school student: "${question}"`;
+                const answer = await callGeminiAPI(prompt);
+                
+                biochemistAnswerDiv.textContent = answer;
+                biochemistSpinner.classList.add('hidden');
+                askBiochemistBtn.disabled = false;
+            });
+
+            const suggestMealBtn = document.getElementById('suggest-meal-btn');
+            const mealPreferencesInput = document.getElementById('meal-preferences');
+            const mealSuggestionDiv = document.getElementById('meal-suggestion');
+            const mealSpinner = document.getElementById('meal-spinner');
+
+            suggestMealBtn.addEventListener('click', async () => {
+                const preferences = mealPreferencesInput.value.trim();
+                if (!preferences) {
+                    mealSuggestionDiv.textContent = "Please enter your meal preferences.";
+                    return;
+                }
+
+                mealSuggestionDiv.innerHTML = "";
+                mealSpinner.classList.remove('hidden');
+                suggestMealBtn.disabled = true;
+
+                const prompt = `Suggest a meal based on these preferences: "${preferences}". Focus on a good balance of proteins and carbohydrates. Provide the response in JSON format with 'recipeName', 'ingredients' (array of strings), and 'instructions' (string).`;
+                const schema = {
+                    type: "OBJECT",
+                    properties: {
+                        "recipeName": { "type": "STRING" },
+                        "ingredients": { "type": "ARRAY", "items": { "type": "STRING" } },
+                        "instructions": { "type": "STRING" }
+                    },
+                    "propertyOrdering": ["recipeName", "ingredients", "instructions"]
+                };
+
+                const meal = await callGeminiAPI(prompt, true, schema);
+                
+                if (meal && meal.recipeName) {
+                    let html = `<h4 class="font-bold text-xl mb-2">${meal.recipeName}</h4>`;
+                    html += `<p class="font-semibold mt-4 mb-2">Ingredients:</p><ul class="list-disc list-inside">`;
+                    meal.ingredients.forEach(ing => { html += `<li>${ing}</li>`; });
+                    html += `</ul><p class="font-semibold mt-4 mb-2">Instructions:</p><p>${meal.instructions}</p>`;
+                    mealSuggestionDiv.innerHTML = html;
+                } else {
+                    mealSuggestionDiv.textContent = "Could not generate a meal suggestion. Please try different preferences.";
+                }
+                
+                mealSpinner.classList.add('hidden');
+                suggestMealBtn.disabled = false;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
