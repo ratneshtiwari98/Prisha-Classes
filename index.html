@@ -191,16 +191,16 @@
                     <h3 class="text-2xl font-semibold mb-6 text-center">Storage Polysaccharides: A Comparison</h3>
                     <div class="grid sm:grid-cols-3 gap-6 text-center">
                          <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                            <h4 class="font-bold text-xl mb-2 text-green-700">Starch</h4>
-                            <p>How plants store sugar. We can digest it for energy. Found in potatoes, rice, and wheat.</p>
+                            <h4 class="font-bold text-xl mb-2 text-green-700">Starch 🌱</h4>
+                            <p>How plants store sugar — easy for us to digest.</p>
                         </div>
                          <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                            <h4 class="font-bold text-xl mb-2 text-yellow-700">Glycogen</h4>
-                            <p>How animals store sugar. Stored in our liver and muscles for quick energy release later.</p>
+                            <h4 class="font-bold text-xl mb-2 text-yellow-700">Glycogen 🏋️‍♂️</h4>
+                            <p>How our bodies store sugar in the liver and muscles.</p>
                         </div>
                          <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                            <h4 class="font-bold text-xl mb-2 text-blue-700">Cellulose</h4>
-                            <p>Makes up plant cell walls. We can't digest it (fiber), but it's crucial for digestive health.</p>
+                            <h4 class="font-bold text-xl mb-2 text-blue-700">Cellulose 🥦</h4>
+                            <p>Found in vegetables. We can’t digest it, but it helps keep our bowels healthy.</p>
                         </div>
                     </div>
                 </div>
@@ -226,8 +226,8 @@
                             <thead>
                                 <tr>
                                     <th class="p-3 border-b-2 border-gray-300 bg-gray-100">Feature</th>
-                                    <th class="p-3 border-b-2 border-gray-300 bg-blue-50 text-blue-800">Protein</th>
-                                    <th class="p-3 border-b-2 border-gray-300 bg-green-50 text-green-800">Carbohydrate</th>
+                                    <th class="p-3 border-b-2 border-gray-300 bg-blue-50 text-blue-800">Protein 🏗️</th>
+                                    <th class="p-3 border-b-2 border-gray-300 bg-green-50 text-green-800">Carbohydrate ⛽</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -248,8 +248,13 @@
                                 </tr>
                                 <tr class="bg-gray-50 border-b border-gray-200">
                                     <td class="p-3 font-semibold">Examples</td>
-                                    <td class="p-3">Enzymes, Keratin</td>
-                                    <td class="p-3">Glucose, Starch</td>
+                                    <td class="p-3">Meat, eggs, nuts</td>
+                                    <td class="p-3">Bread, rice, fruit</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="p-3 font-semibold">Importance</td>
+                                    <td class="p-3">Needed for growth, repair, and body functions</td>
+                                    <td class="p-3">Needed for energy, especially for the brain and muscles</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -263,34 +268,6 @@
                     </div>
                     <div id="application-info" class="mt-4 p-6 bg-gray-100 rounded-lg min-h-[120px]">
                         Click a scenario above to see how biochemistry applies.
-                    </div>
-                </div>
-
-                <div class="mt-12 p-6 bg-blue-50 rounded-lg border border-blue-200">
-                    <h3 class="text-2xl font-semibold mb-4 text-center text-blue-800">✨ Ask the Biochemist!</h3>
-                    <p class="text-gray-700 mb-4 text-center">Have a question about proteins, carbohydrates, or how they work in your body? Ask our AI Biochemist!</p>
-                    <div class="flex flex-col md:flex-row gap-4 mb-4">
-                        <input type="text" id="biochemist-question" class="flex-1 p-3 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="E.g., What happens if I don't eat enough protein?">
-                        <button id="ask-biochemist-btn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
-                            Ask ✨ <span id="biochemist-spinner" class="loading-spinner hidden"></span>
-                        </button>
-                    </div>
-                    <div id="biochemist-answer" class="p-4 bg-white rounded-lg border border-blue-200 min-h-[80px] text-gray-800">
-                        Your answer will appear here.
-                    </div>
-                </div>
-
-                <div class="mt-8 p-6 bg-green-50 rounded-lg border border-green-200">
-                    <h3 class="text-2xl font-semibold mb-4 text-center text-green-800">✨ Meal Builder Assistant</h3>
-                    <p class="text-gray-700 mb-4 text-center">Get personalized meal suggestions based on your preferences, focusing on protein and carbohydrate balance!</p>
-                    <div class="flex flex-col md:flex-row gap-4 mb-4">
-                        <input type="text" id="meal-preferences" class="flex-1 p-3 border border-green-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="E.g., Quick vegetarian high-protein breakfast">
-                        <button id="suggest-meal-btn" class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center">
-                            Suggest Meal ✨ <span id="meal-spinner" class="loading-spinner hidden"></span>
-                        </button>
-                    </div>
-                    <div id="meal-suggestion" class="p-4 bg-white rounded-lg border border-green-200 min-h-[150px] text-gray-800">
-                        Your meal suggestion will appear here.
                     </div>
                 </div>
             </section>
@@ -314,57 +291,56 @@
         const contentSections = document.querySelectorAll('.content-section');
 
         const proteinSynthesisData = [
-            { step: "Step 1: DNA Recipe", explanation: "It all starts with DNA, our body's master instruction book. A specific gene contains the 'recipe' for one protein." },
-            { step: "Step 2: RNA Copy", explanation: "A molecule called RNA acts as a messenger, creating a temporary copy of the DNA's recipe." },
-            { step: "Step 3: Ribosome Chef", explanation: "The RNA copy travels to a ribosome, a tiny 'chef' in the cell. The ribosome reads the recipe." },
-            { step: "Step 4: Folding into Shape", explanation: "The ribosome adds the correct amino acids in order, creating a chain that folds into a unique 3D shape. This final shape is the functional protein!" }
+            { step: "1. DNA Recipe 🧬", explanation: "It all starts with DNA, our body's master instruction book. A specific gene contains the 'recipe' for one protein." },
+            { step: "2. RNA Copy 📝", explanation: "A molecule called RNA acts as a messenger, creating a temporary copy of the DNA's recipe." },
+            { step: "3. Ribosome Chef 👨‍🍳", explanation: "The RNA copy travels to a ribosome, a tiny 'chef' in the cell. The ribosome reads the recipe and joins the right amino acids in order." },
+            { step: "4. Folding into Shape 🔗", explanation: "The string of amino acids folds into a unique 3D shape. This final shape is the functional protein!" }
         ];
 
         const proteinStructureData = {
-            primary: "<strong>Primary (1°):</strong> This is the simplest level – just the specific sequence or order of amino acids in a chain, like letters in a word.",
-            secondary: "<strong>Secondary (2°):</strong> The amino acid chain starts to fold and coil into simple repeating patterns, most commonly spirals (alpha-helices) or zigzags (beta-sheets).",
-            tertiary: "<strong>Tertiary (3°):</strong> The entire chain, including its spirals and sheets, folds up into a complex, unique 3D blob. This final shape is crucial for the protein's job.",
-            quaternary: "<strong>Quaternary (4°):</strong> Some proteins are made of more than one amino acid chain (or 'blob'). This level describes how these multiple chains are stuck together to form a larger protein complex."
+            primary: "<strong>Primary (1°):</strong> This is the simplest level – just the specific sequence or order of amino acids in a chain, like beads on a string. ➖",
+            secondary: "<strong>Secondary (2°):</strong> The amino acid chain starts to fold and coil into simple repeating patterns, most commonly spirals (alpha-helices) or zigzags (beta-sheets). 〰️",
+            tertiary: "<strong>Tertiary (3°):</strong> The entire chain, including its spirals and sheets, folds up into a complex, unique 3D blob. This final shape is crucial for the protein's job. 🌀",
+            quaternary: "<strong>Quaternary (4°):</strong> Some proteins are made of more than one amino acid chain (or 'blob'). This level describes how these multiple chains are stuck together to form a larger protein complex. 🧩"
         };
 
         const proteinTypesData = [
-            { name: "Enzymes", description: "Speed up chemical reactions, like digesting food.", icon: "🔬" },
-            { name: "Structural", description: "Provide support and build body parts. Ex: Keratin in hair/nails, collagen in skin.", icon: "🏗️" },
-            { name: "Transport", description: "Carry molecules around the body. Ex: Hemoglobin carries oxygen in blood.", icon: "🚚" },
-            { name: "Defense", description: "Protect against infection. Ex: Antibodies fight off bacteria and viruses.", icon: "🛡️" },
-            { name: "Hormonal", description: "Act as chemical messengers. Ex: Insulin tells cells to take in sugar.", icon: "✉️" },
-            { name: "Motor", description: "Help with movement. Ex: Myosin in muscle cells.", icon: "💪" }
+            { name: "Enzymes", description: "Speed up chemical reactions, like breaking down food. 🔬", icon: "🔬" },
+            { name: "Structural", description: "Provide support and build body parts. Ex: Keratin in hair/nails, collagen in skin. 🏗️", icon: "🏗️" },
+            { name: "Transport", description: "Carry molecules around the body. Ex: Hemoglobin carries oxygen in blood. 🚚", icon: "🚚" },
+            { name: "Defense", description: "Fight off germs. Ex: Antibodies fight off bacteria and viruses. 🛡️", icon: "🛡️" },
+            { name: "Hormonal", description: "Act as chemical messengers. Ex: Insulin tells cells to take in sugar. ✉️", icon: "✉️" },
+            { name: "Motor", description: "Help with movement. Ex: Myosin in muscle cells. 💪", icon: "💪" }
         ];
 
         const carbUsageData = [
-             { step: "Step 1: Eat Carbs", explanation: "You consume carbohydrates in foods like bread, pasta, or fruit." },
-             { step: "Step 2: Break Down", explanation: "Enzymes in your digestive system break down complex carbs into the simple sugar, glucose." },
-             { step: "Step 3: Enter Blood", explanation: "Glucose is absorbed from your intestines into your bloodstream, raising your blood sugar." },
-             { step: "Step 4: Enter Cells", explanation: "The hormone insulin acts like a key, helping glucose move from the blood into your body's cells." },
-             { step: "Step 5: Make Energy", explanation: "Inside the cells, glucose is used in a process called cellular respiration to create ATP, the main energy currency of the cell." }
+             { step: "1. Eat Carbs 🍚", explanation: "You consume carbohydrates in foods like bread, pasta, or fruit." },
+             { step: "2. Break Down ✂️", explanation: "Enzymes in your digestive system break down complex carbs into the simple sugar, glucose." },
+             { step: "3. Enter Blood 🩸", explanation: "Glucose is absorbed from your intestines into your bloodstream, raising your blood sugar." },
+             { step: "4. Enter Cells 🔑", explanation: "The hormone insulin acts like a key, helping glucose move from the blood into your body's cells." },
+             { step: "5. Make Energy ⚡", explanation: "Inside the cells, glucose is used in a process called cellular respiration to create ATP, the main energy currency of the cell." }
         ];
 
         const carbTypesData = [
-            { name: "Monosaccharides", description: "<strong>'One Sugar'</strong> - The simplest form. Quick energy. Examples: Glucose (main fuel), Fructose (in fruit).", color: "bg-green-100" },
-            { name: "Disaccharides", description: "<strong>'Two Sugars'</strong> - Two monosaccharides linked together. Example: Sucrose (table sugar) = glucose + fructose.", color: "bg-yellow-100" },
-            { name: "Polysaccharides", description: "<strong>'Many Sugars'</strong> - Long chains of monosaccharides. Used for energy storage or structure. Examples: Starch, Glycogen, Cellulose.", color: "bg-blue-100" }
+            { name: "Monosaccharides 🍬", description: "<strong>'One Sugar'</strong> - The simplest form. Quick energy. Examples: Glucose (main fuel), Fructose (in fruit).", color: "bg-green-100" },
+            { name: "Disaccharides 🍭", description: "<strong>'Two Sugars'</strong> - Two monosaccharides linked together. Example: Sucrose (table sugar) = glucose + fructose.", color: "bg-yellow-100" },
+            { name: "Polysaccharides 🌾", description: "<strong>'Many Sugars'</strong> - Long chains of monosaccharides. Used for energy storage or structure. Examples: Starch, Glycogen, Cellulose.", color: "bg-blue-100" }
         ];
         
         const applicationData = {
-            athlete: "An athlete eats a pasta dinner (high in carbs) before a race. The carbs are stored as glycogen in their muscles, providing a readily available source of quick energy during the competition.",
-            bodybuilder: "A bodybuilder consumes a protein shake after a workout. The amino acids from the protein are used to repair the tiny tears in muscle fibers caused by lifting weights, leading to muscle growth.",
-            diabetic: "A person with diabetes must carefully manage their carb intake because their body either doesn't produce enough insulin or can't use it effectively. This helps prevent dangerous spikes in blood sugar.",
+            athlete: "An athlete eats a pasta dinner (high in carbs) before a race. The carbs are stored as glycogen in their muscles, providing a readily available source of quick energy during the competition. 🏃‍♂️",
+            bodybuilder: "A bodybuilder consumes a protein shake after a workout. The amino acids from the protein are used to repair the tiny tears in muscle fibers caused by lifting weights, leading to muscle growth. 💪",
+            diabetic: "A person with diabetes must carefully manage their carb intake because their body either doesn't produce enough insulin or can't use it effectively. This helps prevent dangerous spikes in blood sugar. 🩸",
         };
 
         const quizData = [
-            { question: "What is the primary function of carbohydrates in the body?", options: ["Building muscle", "Providing energy", "Fighting infections", "Storing genetic info"], answer: "Providing energy" },
-            { question: "The building blocks of proteins are called:", options: ["Glucose", "Fatty acids", "Amino acids", "Nucleotides"], answer: "Amino acids" },
-            { question: "Which of these is a complex carbohydrate that humans use for energy storage?", options: ["Cellulose", "Keratin", "Glycogen", "Antibodies"], answer: "Glycogen" },
-            { question: "Cooking an egg is an example of protein...", options: ["Synthesis", "Denaturation", "Digestion", "Transportation"], answer: "Denaturation" }
+            { question: "What’s your body’s main fuel? ⛽", options: ["Proteins", "Fats", "Carbohydrates", "Vitamins"], answer: "Carbohydrates" },
+            { question: "Name two protein-rich foods. 🥚🥩", options: ["Apples, Bananas", "Bread, Rice", "Eggs, Meat", "Potatoes, Pasta"], answer: "Eggs, Meat" },
+            { question: "Which sugar gives you quick energy? ⚡", options: ["Cellulose", "Starch", "Glycogen", "Glucose"], answer: "Glucose" },
+            { question: "Why can’t we digest cellulose? 🥦", options: ["It's too big", "We lack the right enzymes", "It's stored as fat", "It's a defense protein"], answer: "We lack the right enzymes" }
         ];
         
         function init() {
-            // Initial state
             showSection('home');
             
             navButtons.forEach(btn => {
@@ -378,7 +354,7 @@
             setupCarbsSection();
             setupCompareSection();
             setupQuizSection();
-            setupGeminiFeatures();
+            // Removed setupGeminiFeatures();
         }
 
         function showSection(targetId) {
@@ -552,7 +528,6 @@
                 const optionsContainer = document.createElement('div');
                 optionsContainer.className = 'space-y-2';
                 
-                // Shuffle options
                 const shuffledOptions = [...item.options].sort(() => Math.random() - 0.5);
 
                 shuffledOptions.forEach(option => {
@@ -598,110 +573,8 @@
             });
         }
 
-        async function callGeminiAPI(prompt, isStructured = false, schema = {}) {
-            const apiKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-
-            let payload = { contents: chatHistory };
-            if (isStructured) {
-                payload.generationConfig = {
-                    responseMimeType: "application/json",
-                    responseSchema: schema
-                };
-            }
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    return isStructured ? JSON.parse(text) : text;
-                } else {
-                    console.error("Gemini API returned an unexpected structure:", result);
-                    return "Sorry, I couldn't get a response. Please try again.";
-                }
-            } catch (error) {
-                console.error("Error calling Gemini API:", error);
-                return "An error occurred while fetching the response. Please check your network connection.";
-            }
-        }
-
-        function setupGeminiFeatures() {
-            const askBiochemistBtn = document.getElementById('ask-biochemist-btn');
-            const biochemistQuestionInput = document.getElementById('biochemist-question');
-            const biochemistAnswerDiv = document.getElementById('biochemist-answer');
-            const biochemistSpinner = document.getElementById('biochemist-spinner');
-
-            askBiochemistBtn.addEventListener('click', async () => {
-                const question = biochemistQuestionInput.value.trim();
-                if (!question) {
-                    biochemistAnswerDiv.textContent = "Please enter a question.";
-                    return;
-                }
-
-                biochemistAnswerDiv.innerHTML = "";
-                biochemistSpinner.classList.remove('hidden');
-                askBiochemistBtn.disabled = true;
-
-                const prompt = `Act as an expert biochemist. Explain the following concept related to proteins or carbohydrates in a simple, clear, and concise way, suitable for a high school student: "${question}"`;
-                const answer = await callGeminiAPI(prompt);
-                
-                biochemistAnswerDiv.textContent = answer;
-                biochemistSpinner.classList.add('hidden');
-                askBiochemistBtn.disabled = false;
-            });
-
-            const suggestMealBtn = document.getElementById('suggest-meal-btn');
-            const mealPreferencesInput = document.getElementById('meal-preferences');
-            const mealSuggestionDiv = document.getElementById('meal-suggestion');
-            const mealSpinner = document.getElementById('meal-spinner');
-
-            suggestMealBtn.addEventListener('click', async () => {
-                const preferences = mealPreferencesInput.value.trim();
-                if (!preferences) {
-                    mealSuggestionDiv.textContent = "Please enter your meal preferences.";
-                    return;
-                }
-
-                mealSuggestionDiv.innerHTML = "";
-                mealSpinner.classList.remove('hidden');
-                suggestMealBtn.disabled = true;
-
-                const prompt = `Suggest a meal based on these preferences: "${preferences}". Focus on a good balance of proteins and carbohydrates. Provide the response in JSON format with 'recipeName', 'ingredients' (array of strings), and 'instructions' (string).`;
-                const schema = {
-                    type: "OBJECT",
-                    properties: {
-                        "recipeName": { "type": "STRING" },
-                        "ingredients": { "type": "ARRAY", "items": { "type": "STRING" } },
-                        "instructions": { "type": "STRING" }
-                    },
-                    "propertyOrdering": ["recipeName", "ingredients", "instructions"]
-                };
-
-                const meal = await callGeminiAPI(prompt, true, schema);
-                
-                if (meal && meal.recipeName) {
-                    let html = `<h4 class="font-bold text-xl mb-2">${meal.recipeName}</h4>`;
-                    html += `<p class="font-semibold mt-4 mb-2">Ingredients:</p><ul class="list-disc list-inside">`;
-                    meal.ingredients.forEach(ing => { html += `<li>${ing}</li>`; });
-                    html += `</ul><p class="font-semibold mt-4 mb-2">Instructions:</p><p>${meal.instructions}</p>`;
-                    mealSuggestionDiv.innerHTML = html;
-                } else {
-                    mealSuggestionDiv.textContent = "Could not generate a meal suggestion. Please try different preferences.";
-                }
-                
-                mealSpinner.classList.add('hidden');
-                suggestMealBtn.disabled = false;
-            });
-        }
+        // Removed callGeminiAPI function
+        // Removed setupGeminiFeatures function
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
