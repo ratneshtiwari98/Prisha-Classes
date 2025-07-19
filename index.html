@@ -334,10 +334,26 @@
         };
 
         const quizData = [
-            { question: "What’s your body’s main fuel? ⛽", options: ["Proteins", "Fats", "Carbohydrates", "Vitamins"], answer: "Carbohydrates" },
-            { question: "Name two protein-rich foods. 🥚🥩", options: ["Apples, Bananas", "Bread, Rice", "Eggs, Meat", "Potatoes, Pasta"], answer: "Eggs, Meat" },
-            { question: "Which sugar gives you quick energy? ⚡", options: ["Cellulose", "Starch", "Glycogen", "Glucose"], answer: "Glucose" },
-            { question: "Why can’t we digest cellulose? 🥦", options: ["It's too big", "We lack the right enzymes", "It's stored as fat", "It's a defense protein"], answer: "We lack the right enzymes" }
+            { question: "1. What’s your body’s main fuel? ⛽", options: ["Proteins", "Fats", "Carbohydrates", "Vitamins"], answer: "Carbohydrates" },
+            { question: "2. Name two protein-rich foods. 🥚🥩", options: ["Apples, Bananas", "Bread, Rice", "Eggs, Meat", "Potatoes, Pasta"], answer: "Eggs, Meat" },
+            { question: "3. Which sugar gives you quick energy? ⚡", options: ["Cellulose", "Starch", "Glycogen", "Glucose"], answer: "Glucose" },
+            { question: "4. Why can’t we digest cellulose? 🥦", options: ["It's too big", "We lack the right enzymes", "It's stored as fat", "It's a defense protein"], answer: "We lack the right enzymes" },
+            { question: "5. What are the smaller building blocks of proteins called? 🧱", options: ["Monosaccharides", "Fatty acids", "Amino acids", "Nucleotides"], answer: "Amino acids" },
+            { question: "6. What is the process called when a protein changes its 3D shape and stops working? 🌀", options: ["Synthesis", "Denaturation", "Digestion", "Absorption"], answer: "Denaturation" },
+            { question: "7. Which type of protein speeds up chemical reactions in the body? 🔬", options: ["Structural proteins", "Transport proteins", "Enzymes", "Hormonal proteins"], answer: "Enzymes" },
+            { question: "8. What is the primary role of structural proteins? 🏗️", options: ["Carrying oxygen", "Building body parts", "Sending signals", "Fighting germs"], answer: "Building body parts" },
+            { question: "9. Where does your body store glycogen? 🏋️‍♂️", options: ["In the blood", "In the brain", "In the liver and muscles", "In the bones"], answer: "In the liver and muscles" },
+            { question: "10. Which of these foods is a good source of plant-based protein? 🌱", options: ["Milk", "Chicken", "Lentils", "Butter"], answer: "Lentils" },
+            { question: "11. What is the main instruction book for making proteins in your body? 🧬", options: ["RNA", "Ribosomes", "Amino acids", "DNA"], answer: "DNA" },
+            { question: "12. What happens to extra glucose if you eat too much sugar? 📈", options: ["It's excreted immediately", "It's stored as fat", "It turns into protein", "It's used to build bones"], answer: "It's stored as fat" },
+            { question: "13. Which type of carbohydrate is table sugar? 🍭", options: ["Monosaccharide", "Disaccharide", "Polysaccharide", "Fiber"], answer: "Disaccharide" },
+            { question: "14. Why does your brain need a constant supply of glucose? 🧠", options: ["To build new cells", "To fight infections", "To stay hydrated", "For energy and proper function"], answer: "For energy and proper function" },
+            { question: "15. What is the role of insulin in carbohydrate metabolism? 🔑", options: ["To break down proteins", "To help glucose enter cells", "To store fat", "To transport oxygen"], answer: "To help glucose enter cells" },
+            { question: "16. Which of these is a fun fact about protein? 🕷️", options: ["It makes up your bones", "Spider silk is stronger than steel and made of protein", "It is only found in animal products", "It is exclusively used for energy"], answer: "Spider silk is stronger than steel and made of protein" },
+            { question: "17. What are the three elements that carbohydrates are made of? 🧪", options: ["Nitrogen, Oxygen, Hydrogen", "Carbon, Hydrogen, Oxygen", "Sulfur, Phosphorus, Carbon", "Iron, Calcium, Zinc"], answer: "Carbon, Hydrogen, Oxygen" },
+            { question: "18. What is the primary level of protein structure? ➖", options: ["The 3D blob shape", "Spirals or zigzags", "The order of amino acids", "Multiple blobs stuck together"], answer: "The order of amino acids" },
+            { question: "19. Which food source is rich in fiber, helping with digestion? 🍎", options: ["Meat", "Dairy", "Whole grains", "Sweets"], answer: "Whole grains" },
+            { question: "20. What is the tiny 'chef' in the cell that reads the RNA recipe? 👨‍🍳", options: ["DNA", "Enzyme", "Ribosome", "Mitochondria"], answer: "Ribosome" }
         ];
         
         function init() {
@@ -354,7 +370,6 @@
             setupCarbsSection();
             setupCompareSection();
             setupQuizSection();
-            // Removed setupGeminiFeatures();
         }
 
         function showSection(targetId) {
@@ -522,7 +537,7 @@
 
                 const questionText = document.createElement('p');
                 questionText.className = 'font-semibold text-lg mb-3';
-                questionText.textContent = `${index + 1}. ${item.question}`;
+                questionText.textContent = `${item.question}`; // Use item.question directly as it now contains the number
                 questionBlock.appendChild(questionText);
 
                 const optionsContainer = document.createElement('div');
@@ -572,9 +587,6 @@
                 submitButton.classList.add('bg-gray-500', 'hover:bg-gray-500');
             });
         }
-
-        // Removed callGeminiAPI function
-        // Removed setupGeminiFeatures function
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
