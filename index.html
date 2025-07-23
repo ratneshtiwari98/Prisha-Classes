@@ -3,788 +3,1405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biochemistry Explorer: Proteins vs. Carbs</title>
+    <title>Journey into Biochemistry</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Harmony -->
-    <!-- Application Structure Plan: The application is structured into five thematic, tab-navigated sections: Home, Proteins, Carbohydrates, Compare & Apply, and a Quiz. This non-linear structure was chosen over the original slide-deck format to empower users to learn at their own pace and explore topics of interest freely. It promotes better understanding by grouping related concepts (e.g., all protein information in one place) and facilitates synthesis by having dedicated comparison and application sections. The user flow encourages exploration, starting with a general introduction and then diving into specifics, comparing concepts, and finally testing their knowledge, which is a more effective pedagogical approach than passive viewing. -->
-    <!-- Visualization & Content Choices: 
-        - Protein Synthesis/Carb Usage Process: (Goal: Organize) -> Interactive HTML/CSS flowcharts are used. On click, steps are highlighted. Justification: Visually demonstrates a sequence of events more effectively than static text. Method: Vanilla JS + CSS.
-        - Protein Structure Levels: (Goal: Inform/Organize) -> Clickable tabs reveal information about each of the four levels. Justification: Breaks down a complex topic into digestible, user-controlled chunks. Method: Vanilla JS.
-        - Types of Proteins/Carbs: (Goal: Inform) -> Interactive card grids. Justification: A modern, visually appealing way to present categorized information. Method: Vanilla JS.
-        - Comparison Chart: (Goal: Compare) -> A Bar Chart from Chart.js visualizes the primary roles (Build vs. Fuel). Justification: Provides an immediate, powerful visual contrast between the two macromolecules. Library: Chart.js (Canvas).
-        - Real-Life Applications: (Goal: Apply) -> Clickable scenarios update a content area. Justification: Directly connects abstract scientific concepts to tangible, real-world examples. Method: Vanilla JS.
-        - Quiz: (Goal: Assess) -> An interactive quiz with instant feedback. Justification: Reinforces learning through active recall. Method: Vanilla JS.
-        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8F9FA;
-            color: #343A40;
+            background-color: #F9F9F9; /* Soft Off-White */
+            color: #333333; /* Dark Charcoal Gray */
         }
-        .nav-btn {
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-        .nav-btn.active {
-            border-bottom-color: #007BFF;
-            color: #007BFF;
+        .section-card {
+            background-color: #FFFFFF; /* White card background */
+            border-radius: 1.5rem; /* More rounded corners */
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* Softer shadow */
+        }
+        .header-bg {
+            background-color: #0A2F5C; /* Deep Navy Blue header */
+            color: #FFFFFF;
+        }
+        /* Styles for tabs */
+        .tab-button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
             font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
+            cursor: pointer;
+            white-space: nowrap; /* Prevent wrapping for tab names */
+            flex-shrink: 0; /* Prevent shrinking */
+            color: #FFFFFF; /* Default text color for tabs */
         }
-        .nav-btn.disabled-quiz {
-            pointer-events: none;
-            opacity: 0.6;
+        .tab-button:hover {
+            background-color: #2E8B8B; /* Teal Green on hover */
+            color: #FFFFFF;
+            transform: translateY(-2px);
+        }
+        .tab-button.active {
+            background-color: #2E8B8B; /* Active tab Teal Green */
+            color: #FFFFFF;
+            box-shadow: 0 4px 10px rgba(46, 139, 139, 0.4); /* Shadow for active teal */
+        }
+        /* Styles for disabled tabs (kept for general purpose, though not used for quiz lock-in) */
+        .tab-button:disabled {
+            opacity: 0.5; /* Visual feedback for disabled */
             cursor: not-allowed;
         }
-        .content-section {
-            display: none;
+
+        .tab-content {
+            display: none; /* Hidden by default */
         }
-        .content-section.active {
-            display: block;
+        .tab-content.active {
+            display: block; /* Show active content */
         }
-        .card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        .btn-primary {
+            background-color: #2E8B8B; /* Teal Green button */
+            color: #FFFFFF;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(46, 139, 139, 0.3);
         }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .btn-primary:hover {
+            background-color: #257070; /* Darker teal on hover */
+            transform: translateY(-2px);
         }
-        .interactive-step, .interactive-tab {
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-        .interactive-step.active, .interactive-tab.active {
-            background-color: #007BFF;
-            color: white;
-            transform: scale(1.05);
-        }
-        .chart-container {
-            position: relative;
+        .quiz-option-btn { /* Reverted to button for immediate feedback */
+            background-color: #F3F4F6; /* Light neutral for options */
+            color: #333333;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            text-align: left;
             width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 400px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
+        .quiz-option-btn:hover {
+            background-color: #E0E2E4;
+            transform: translateY(-1px);
+        }
+        .quiz-option-btn.correct {
+            background-color: #D9E8D0; /* Lighter Moss Green */
+            border: 2px solid #6A994E; /* Moss Green border */
+            color: #333333; /* Dark Charcoal text */
+        }
+        .quiz-option-btn.incorrect {
+            background-color: #F9F9F9; /* Use main background color for incorrect option background */
+            border: 2px solid #333333; /* Dark Charcoal Gray border for incorrect */
+            color: #333333; /* Dark Charcoal text */
+        }
+        .quiz-feedback {
+            font-weight: 600;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+        .text-teal-green {
+            color: #2E8B8B; /* Teal Green */
+        }
+        .text-navy-blue { /* New class for headings/subheadings */
+            color: #0A2F5C; /* Deep Navy Blue */
+        }
+        .highlight-box {
+            background-color: #EDF7FA; /* Very Pale Blue for highlight box background */
+            border-left: 5px solid #6A994E; /* Moss Green border */
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+            font-style: italic;
+            color: #333333; /* Ensure text is readable */
+        }
+        .quiz-summary-card {
+            background-color: #FFFFFF;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-top: 2rem;
+        }
+        .weak-topic-item {
+            background-color: #EDF7FA; /* Very Pale Blue for weak topic item background */
+            border-left: 4px solid #6A994E; /* Moss Green border */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        /* Quiz Sidebar Styles */
+        .quiz-sidebar {
+            width: 100%; /* Take full width of its parent */
+            padding: 1rem;
+            background-color: #EDF7FA; /* Very Pale Blue */
+            border-radius: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-top: 1.5rem; /* Space from content above */
+            /* Removed sticky and overflow-y as it's now part of main flow */
+        }
+        .quiz-sidebar-grid {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr); /* 15 columns for 15x2 grid (30 questions) */
+            gap: 0.5rem;
+        }
+        .quiz-sidebar-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #F3F4F6; /* Light neutral */
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            cursor: pointer;
+            color: #333333;
+            border: 1px solid transparent; /* Default border */
+        }
+        .quiz-sidebar-btn:hover {
+            background-color: #E0E2E4;
+            transform: translateY(-1px);
+        }
+        .quiz-sidebar-btn.active-question {
+            background-color: #2E8B8B; /* Teal Green */
+            color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(46, 139, 139, 0.3);
+            border-color: #2E8B8B; /* Teal Green border */
+        }
+        .quiz-sidebar-btn.answered-correct {
+            background-color: #D9E8D0; /* Lighter Moss Green */
+            border: 1px solid #6A994E; /* Moss Green */
+        }
+        .quiz-sidebar-btn.answered-incorrect {
+            background-color: #F9E8E4; /* Lighter Muted Coral/Red-Orange */
+            border: 1px solid #E76F51; /* Muted Coral/Red-Orange */
+            color: #333333; /* Dark Charcoal text to maintain readability */
+        }
+        /* Responsive adjustments for sidebar */
+        @media (max-width: 768px) {
+            .quiz-sidebar {
+                margin-right: 0;
+                margin-bottom: 1.5rem;
+                position: static; /* Remove sticky on small screens */
+                max-height: none;
+                overflow-y: visible;
             }
-        }
-        .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #007BFF;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 8px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .explanation {
-            margin-top: 8px;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-        .explanation.correct {
-            background-color: #D4EDDA; /* Light green */
-            color: #155724; /* Dark green */
-            border: 1px solid #C3E6CB;
-        }
-        .explanation.wrong {
-            background-color: #F8D7DA; /* Light red */
-            color: #721C24; /* Dark red */
-            border: 1px solid #F5C6CB;
+            .quiz-container-flex {
+                flex-direction: column;
+            }
+            .quiz-sidebar-grid {
+                grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); /* Adjust for smaller screens */
+            }
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-100 text-gray-800">
 
-    <div class="min-h-screen container mx-auto px-4 py-8">
-        
-        <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-800">Biochemistry Explorer</h1>
-            <p class="text-lg text-gray-600 mt-2">An Interactive Journey into Proteins and Carbohydrates</p>
-        </header>
+    <!-- Header and Navigation (Tabs) -->
+    <header class="header-bg shadow-lg py-4 sticky top-0 z-50">
+        <div class="container flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-3xl font-bold text-white mb-4 md:mb-0">Journey into Biochemistry</h1>
+            <nav class="w-full md:w-auto">
+                <div class="flex flex-wrap justify-center gap-x-4 gap-y-2 text-lg py-2">
+                    <button class="tab-button" data-tab="what-is-biochem-content">What is Biochemistry?</button>
+                    <button class="tab-button" data-tab="biomolecules-overview-content">Biomolecules</button>
+                    <button class="tab-button" data-tab="proteins-content">Proteins</button>
+                    <button class="tab-button" data-tab="carbohydrates-content">Carbohydrates</button>
+                    <button class="tab-button" data-tab="lipids-content">Lipids</button>
+                    <button class="tab-button" data-tab="nucleic-acids-content">Nucleic Acids</button>
+                    <button class="tab-button" data-tab="metabolism-energy-content">Metabolism & Energy</button>
+                    <button class="tab-button" data-tab="everyday-biochem-content">Everyday Biochemistry</button>
+                    <button class="tab-button" data-tab="quiz-content">Quiz Time!</button>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-        <nav class="flex justify-center border-b border-gray-200 mb-8 flex-wrap">
-            <button class="nav-btn p-4 text-lg" data-target="home">Home</button>
-            <button class="nav-btn p-4 text-lg" data-target="proteins">Proteins</button>
-            <button class="nav-btn p-4 text-lg" data-target="carbs">Carbohydrates</button>
-            <button class="nav-btn p-4 text-lg" data-target="compare">Compare & Apply</button>
-            <button class="nav-btn p-4 text-lg" data-target="quiz">Quiz</button>
-        </nav>
+    <!-- Main Content Sections (Tabbed Content) -->
+    <main class="container py-8">
 
-        <main>
-            <!-- Home Section -->
-            <section id="home" class="content-section text-center">
-                <h2 class="text-3xl font-bold mb-4 text-gray-700">Welcome, Future Biochemist!</h2>
-                <p class="max-w-3xl mx-auto text-gray-600 text-lg mb-6">
-                    Our bodies are incredible machines, powered by microscopic molecules. This guide explores two of the most important: proteins, the master builders, and carbohydrates, the essential fuel. Forget static slides; here, you can click, explore, and test your knowledge to truly understand how these molecules shape our lives. Use the tabs above to navigate between topics.
-                </p>
-                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                        <h3 class="text-2xl font-semibold mb-2 text-blue-600">Proteins: The Body's Builders</h3>
-                        <p>Discover how simple blocks called amino acids create complex structures that build everything from your muscles to your hair, and how their unique shapes define their jobs.</p>
-                    </div>
-                    <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                        <h3 class="text-2xl font-semibold mb-2 text-green-600">Carbohydrates: The Body's Fuel</h3>
-                        <p>Learn how sugars provide the energy that powers every cell in your body, from a simple thought to a powerful sprint, and why not all carbs are created equal.</p>
-                    </div>
-                </div>
-            </section>
+        <!-- Tab Content for Slide 1: What is Biochemistry? -->
+        <section id="what-is-biochem-content" class="tab-content section-card active">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">🔬 What is Biochemistry?</h2>
+            <p class="text-lg leading-relaxed mb-4">Biochemistry explores the fascinating chemical processes that happen inside all living organisms. It's like a detective, figuring out how life works at the tiniest, molecular level!</p>
+            <p class="text-lg leading-relaxed mb-4">It brilliantly bridges the gap between <span class="font-semibold text-teal-green">biology</span> (the study of life) and <span class="font-semibold text-teal-green">chemistry</span> (the study of matter) by explaining life from its fundamental chemical reactions.</p>
+            <p class="text-lg leading-relaxed mb-4">Understanding biochemistry helps us unravel the mysteries of our own bodies – from how we digest food and get energy, to how we grow and heal.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Ever wondered why you read nutrition labels? Biochemistry helps you choose healthy foods! Knowing about metabolism explains why your body burns calories, and even your shampoo uses biochemistry for cleansing and conditioning!</p>
+            </div>
+        </section>
 
-            <!-- Proteins Section -->
-            <section id="proteins" class="content-section">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Diving Deep into Proteins</h2>
-                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">Proteins are the workhorses of the cell, performing a vast array of functions. Here, we'll explore how they are made, their intricate structures, and the different roles they play. Think of them as the versatile and essential "apps" running in the operating system of your body.</p>
-                </div>
+        <!-- Tab Content for Slide 2: Biomolecules Overview -->
+        <section id="biomolecules-overview-content" class="tab-content section-card">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">🧬 Biomolecules Overview: The Building Blocks of Life</h2>
+            <p class="text-lg leading-relaxed mb-4">Life as we know it is built from four major types of organic molecules, called <span class="font-semibold text-teal-green">biomolecules</span>. Think of them as the essential ingredients in life's recipe!</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Proteins:</strong> The versatile "builders and workers" of the cell.</li>
+                <li><strong class="text-teal-green">Carbohydrates:</strong> Our primary "energy providers."</li>
+                <li><strong class="text-teal-green">Lipids:</strong> Great for "energy storage and cell structure."</li>
+                <li><strong class="text-teal-green">Nucleic Acids:</strong> The "genetic material" that carries our blueprint.</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">Each of these biomolecules plays a unique and specific role, absolutely essential for all life functions.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> You encounter biomolecules every day! They're found in the food you eat, many medicines you take, and even the cosmetics you use.</p>
+            </div>
+        </section>
 
-                <div class="grid md:grid-cols-2 gap-12 items-start">
-                    <div>
-                        <h3 class="text-2xl font-semibold mb-4 text-center">How a Protein is Made</h3>
-                        <div id="protein-synthesis-flow" class="space-y-4">
-                            <!-- JS will populate this -->
-                        </div>
-                        <div id="protein-synthesis-explanation" class="mt-4 p-4 bg-gray-100 rounded-lg min-h-[100px]">
-                            Click a step to learn more.
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-semibold mb-4 text-center">The Four Levels of Structure</h3>
-                        <div class="flex justify-center space-x-2 mb-4 bg-gray-100 p-2 rounded-lg">
-                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="primary">Primary</button>
-                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="secondary">Secondary</button>
-                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="tertiary">Tertiary</button>
-                            <button class="interactive-tab flex-1 p-2 rounded-md" data-target="quaternary">Quaternary</button>
-                        </div>
-                        <div id="protein-structure-info" class="p-4 bg-gray-100 rounded-lg min-h-[150px]">
-                            Click a level to see its description.
-                        </div>
-                    </div>
-                </div>
+        <!-- Tab Content for Proteins (Combines Slides 3-7) -->
+        <section id="proteins-content" class="tab-content section-card">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">💪 Proteins – The Builders and Workers</h2>
+            <!-- Slide 3: Proteins – The Builders -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Proteins: What They Are & What They Do</h3>
+            <p class="text-lg leading-relaxed mb-4">Proteins are incredibly diverse and perform a vast array of functions in your body. They are made of smaller units called <span class="font-semibold text-teal-green">amino acids</span>, linked together like beads on a string by special connections called <span class="font-semibold text-teal-green">peptide bonds</span>.</p>
+            <p class="text-lg leading-relaxed mb-4">They function as:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Muscles:</strong> For movement and strength.</li>
+                <li><strong class="text-teal-green">Enzymes:</strong> Speeding up chemical reactions.</li>
+                <li><strong class="text-teal-green">Antibodies:</strong> Fighting off infections.</li>
+                <li><strong class="text-teal-green">Channels:</strong> Transporting substances across cell membranes.</li>
+                <li><strong class="text-teal-green">Hormones:</strong> Sending signals throughout the body.</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">The <span class="font-semibold text-teal-green">shape</span> of a protein is super important – it dictates its job! Fibrous proteins, like those in your hair and nails, provide structure, while globular proteins, like enzymes, are involved in chemical reactions.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Your muscles grow stronger with protein intake and exercise! And when you get sick, your body produces antibodies (which are proteins!) to fight off infections.</p>
+            </div>
 
-                <div class="mt-12">
-                    <h3 class="text-2xl font-semibold mb-6 text-center">Types of Proteins & Their Jobs</h3>
-                    <div id="protein-types-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- JS will populate this -->
-                    </div>
-                </div>
-            </section>
+            <hr class="my-8 border-t-2 border-gray-200">
 
-            <!-- Carbs Section -->
-            <section id="carbs" class="content-section">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Unpacking Carbohydrates</h2>
-                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">Carbohydrates are the primary source of energy for all living things. From simple sugars that provide a quick boost to complex starches that offer sustained fuel, this section explores their structure, how our bodies use them, and the different forms they take.</p>
-                </div>
-                
-                 <div class="grid md:grid-cols-2 gap-12 items-start">
-                    <div>
-                        <h3 class="text-2xl font-semibold mb-4 text-center">How Your Body Uses Carbs</h3>
-                        <div id="carb-usage-flow" class="space-y-4">
-                            <!-- JS will populate this -->
-                        </div>
-                        <div id="carb-usage-explanation" class="mt-4 p-4 bg-gray-100 rounded-lg min-h-[100px]">
-                            Click a step to learn more.
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-semibold mb-4 text-center">Types of Carbohydrates</h3>
-                         <div id="carb-types-grid" class="grid grid-cols-1 gap-4">
-                           <!-- JS will populate this -->
-                        </div>
-                    </div>
-                </div>
+            <!-- Slide 4: Protein Structure -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Protein Structure: Levels of Organization</h3>
+            <p class="text-lg leading-relaxed mb-4">Proteins are complex molecules, and their structure is described in four fascinating levels:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Primary Structure:</strong> This is the simplest level – just the linear sequence of amino acids, like letters in a word.</li>
+                <li><strong class="text-teal-green">Secondary Structure:</strong> The amino acid chain starts to fold into common shapes, such as <span class="font-semibold">α-helices</span> (like a spiral staircase) and <span class="font-semibold">β-sheets</span> (like a pleated paper fan). These shapes are stabilized by hydrogen bonds.</li>
+                <li><strong class="text-teal-green">Tertiary Structure:</strong> The entire 3D folding of a single protein chain, driven by interactions between the "side-chains" of the amino acids. This gives the protein its unique overall shape.</li>
+                <li><strong class="text-teal-green">Quaternary Structure:</strong> Some proteins are made of multiple folded protein chains (subunits) that come together to form a larger, functional complex.</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">Remember, a protein's <span class="font-semibold text-teal-green">shape directly affects its function</span>! For example, enzymes need a precise shape to fit their target molecules.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Ever used hair straighteners? They work by breaking the hydrogen bonds in keratin (a fibrous protein in your hair), temporarily changing its secondary and tertiary structure, and thus its shape!</p>
+            </div>
 
-                 <div class="mt-12">
-                    <h3 class="text-2xl font-semibold mb-6 text-center">Storage Polysaccharides: A Comparison</h3>
-                    <div class="grid sm:grid-cols-3 gap-6 text-center">
-                         <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                            <h4 class="font-bold text-xl mb-2 text-green-700">Starch 🌱</h4>
-                            <p>How plants store sugar — easy for us to digest.</p>
-                        </div>
-                         <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                            <h4 class="font-bold text-xl mb-2 text-yellow-700">Glycogen 🏋️‍♂️</h4>
-                            <p>How our bodies store sugar in the liver and muscles.</p>
-                        </div>
-                         <div class="card bg-white p-6 rounded-lg border border-gray-200">
-                            <h4 class="font-bold text-xl mb-2 text-blue-700">Cellulose 🥦</h4>
-                            <p>Found in vegetables. We can’t digest it, but it helps keep our bowels healthy.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <hr class="my-8 border-t-2 border-gray-200">
 
-            <!-- Compare Section -->
-            <section id="compare" class="content-section">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Compare, Contrast & Apply</h2>
-                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">Understanding proteins and carbs individually is great, but seeing them side-by-side reveals their unique and complementary roles in our health. This section compares them directly and shows how this knowledge applies to everyday life, from the kitchen to athletic performance.</p>
-                </div>
-                
-                <div class="grid lg:grid-cols-2 gap-12">
-                    <div>
-                        <h3 class="text-2xl font-semibold mb-4 text-center">Proteins vs. Carbs: At a Glance</h3>
-                        <div class="chart-container">
-                            <canvas id="comparisonChart"></canvas>
+            <!-- Slide 5: Enzymes – The Speed Machines -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Enzymes – The Speed Machines of Life</h3>
+            <p class="text-lg leading-relaxed mb-4">Enzymes are special proteins that act as <span class="font-semibold text-teal-green">biological catalysts</span>. This means they dramatically accelerate biochemical reactions without being used up themselves!</p>
+            <p class="text-lg leading-relaxed mb-4">Think of them like tiny, super-efficient machines. Each enzyme is highly <span class="font-semibold text-teal-green">specific</span> to a particular molecule it acts upon, called a <span class="font-semibold text-teal-green">substrate</span>. This is often described by the <span class="font-semibold text-teal-green">lock-and-key model</span>, where only the correct key (substrate) fits the specific lock (enzyme).</p>
+            <p class="text-lg leading-relaxed mb-4">How do they do it? Enzymes work by <span class="font-semibold text-teal-green">lowering the activation energy</span> required for a reaction to occur. This allows reactions to happen quickly and efficiently at normal body temperature, which is crucial for life!</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> The amylase enzyme in your saliva starts digesting starch the moment you take a bite of bread. Industrial detergents also use enzymes to break down tough stains like proteins and fats on your clothes!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 6: Protein Synthesis – DNA to Protein -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Protein Synthesis – From DNA to Protein</h3>
+            <p class="text-lg leading-relaxed mb-4">Proteins are vital, and your body has a precise way of making them, guided by your genetic material. This process is called <span class="font-semibold text-teal-green">protein synthesis</span> and involves two main steps:</p>
+            <ol class="list-decimal list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Transcription:</strong> In the nucleus, the genetic information from <span class="font-semibold">DNA</span> is copied into a messenger molecule called <span class="font-semibold">messenger RNA (mRNA)</span>.</li>
+                <li><strong class="text-teal-green">Translation:</strong> The mRNA then travels out of the nucleus to the <span class="font-semibold">ribosomes</span> in the cytoplasm. Here, the mRNA sequence is "read," and amino acids are assembled in the correct order to create a <span class="font-semibold">protein</span>.</li>
+            </ol>
+            <p class="text-lg leading-relaxed mb-4">This entire process is incredibly precise. Even small mistakes (mutations) in the DNA code can lead to incorrect protein structures, which can cause genetic disorders or diseases.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Conditions like cystic fibrosis are caused by mutations that affect the structure and function of specific proteins involved in transport across cell membranes. Understanding this helps in developing treatments.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 7: Protein in Diet -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Protein in Your Diet</h3>
+            <p class="text-lg leading-relaxed mb-4">Since proteins are the "builders," it's no surprise that we need to consume them through our diet. Good sources of protein include:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li>Eggs 🥚</li>
+                <li>Nuts 🌰</li>
+                <li>Meat 🥩</li>
+                <li>Dairy products (milk, cheese, yogurt) 🥛🧀</li>
+                <li>Lentils and beans 🫘</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">Protein is absolutely required for the <span class="font-semibold text-teal-green">growth and repair of tissues</span> throughout your body, from your muscles to your skin and hair.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Weak hair and brittle nails can sometimes be linked to a protein deficiency. This is why bodybuilders often consume extra protein – to support muscle repair and growth after intense workouts!</p>
+            </div>
+        </section>
+
+        <!-- Tab Content for Carbohydrates (Combines Slides 8-12) -->
+        <section id="carbohydrates-content" class="tab-content section-card">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">🍞 Carbohydrates – Your Energy Boosters</h2>
+            <!-- Slide 8: Carbohydrates – Energy Boosters -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Carbohydrates: Types & Energy</h3>
+            <p class="text-lg leading-relaxed mb-4">Carbohydrates are the body's main source of energy. They are made up of basic units called <span class="font-semibold text-teal-green">sugars</span>, which can come in different forms:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Monosaccharides:</strong> Single sugar units (e.g., glucose, fructose).</li>
+                <li><strong class="text-teal-green">Disaccharides:</strong> Two sugar units joined together (e.g., sucrose, lactose).</li>
+                <li><strong class="text-teal-green">Polysaccharides:</strong> Many sugar units linked in long chains (e.g., starch, glycogen, cellulose).</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">They are the primary source for both <span class="font-semibold">quick energy</span> (simple sugars) and <span class="font-semibold">long-term sustained energy</span> (complex carbohydrates).</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Eating a piece of candy provides a rapid energy boost because it's full of simple sugars. On the other hand, complex carbohydrates like whole grains give you sustained energy throughout the day.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 9: Glucose – The Body’s Fuel -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Glucose – The Body’s Preferred Fuel</h3>
+            <p class="text-lg leading-relaxed mb-4">Among all carbohydrates, <span class="font-semibold text-teal-green">glucose</span> is the most important sugar. It's the direct fuel source for your brain, muscles, and every other cell in your body!</p>
+            <p class="text-lg leading-relaxed mb-4">Glucose is broken down through a process called <span class="font-semibold text-teal-green">cellular respiration</span>. This complex series of reactions releases energy, which is captured in a special molecule called <span class="font-semibold text-teal-green">ATP (Adenosine Triphosphate)</span>.</p>
+            <p class="text-lg leading-relaxed mb-4">ATP is often called the "energy currency" of the cell because it powers virtually all cellular activities, from muscle contraction to sending nerve signals.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Athletes often "carb-load" before endurance events like marathons. This helps them build up their glycogen stores (a form of stored glucose) in their muscles and liver, providing a long-lasting energy supply for the race!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 10: Starch, Cellulose, Glycogen -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Starch, Cellulose, Glycogen: Different Roles</h3>
+            <p class="text-lg leading-relaxed mb-4">These three are all <span class="font-semibold text-teal-green">polysaccharides</span> (long chains of glucose units), but they have very different structures and roles:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Starch:</strong> This is how plants store energy. It's easily digestible by humans, found in foods like potatoes, rice, and bread.</li>
+                <li><strong class="text-teal-green">Cellulose:</strong> This forms the structural fibers in plants (like the cell walls). Humans cannot digest cellulose, but it's crucial as dietary fiber!</li>
+                <li><strong class="text-teal-green">Glycogen:</strong> This is how animals (including humans) store excess glucose for later energy use. It's primarily stored in the liver and muscles.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Eating whole grains provides a fantastic combination of starch (for slow-release energy) and fiber (like cellulose, for digestive health). This helps you feel full longer and keeps your digestive system happy!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 11: Carbs in Daily Life -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Carbs in Daily Life</h3>
+            <p class="text-lg leading-relaxed mb-4">Carbohydrates are a staple in most diets and are found in a wide variety of foods:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li>Bread 🥖</li>
+                <li>Rice 🍚</li>
+                <li>Pasta 🍝</li>
+                <li>Fruits 🍓</li>
+                <li>Vegetables 🥦</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">Beyond just energy, carbohydrates also play a role in helping to <span class="font-semibold text-teal-green">regulate blood sugar levels</span> in your body, especially after meals.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> For individuals with diabetes, understanding and managing carbohydrate intake is absolutely vital to keep blood sugar levels stable and prevent health complications.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 12: Fiber – The Digestive Broom -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Fiber – The Digestive Broom</h3>
+            <p class="text-lg leading-relaxed mb-4">While humans can't digest all types of carbohydrates, some, like <span class="font-semibold text-teal-green">fiber</span> (which includes cellulose), are incredibly important for your digestive system.</p>
+            <p class="text-lg leading-relaxed mb-4">Fiber acts like a "broom" for your digestive tract. It adds bulk to your stool, helping to <span class="font-semibold">prevent constipation</span> and keeping things moving smoothly.</p>
+            <p class="text-lg leading-relaxed mb-4">It also supports a <span class="font-semibold text-teal-green">healthy gut microbiome</span> – the community of beneficial bacteria living in your intestines, which are crucial for overall health.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> A diet rich in fiber is strongly linked to a lower risk of colon cancer and can also help manage cholesterol levels, contributing to heart health!</p>
+            </div>
+        </section>
+
+        <!-- Tab Content for Lipids (Combines Slides 13-16) -->
+        <section id="lipids-content" class="tab-content section-card">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">🧈 Lipids – The Long-Term Energy Stores</h2>
+            <!-- Slide 13: Lipids – The Long-Term Energy Stores -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Lipids: Energy, Insulation & Structure</h3>
+            <p class="text-lg leading-relaxed mb-4">Lipids are a diverse group of molecules that include <span class="font-semibold text-teal-green">fats, oils, and waxes</span>. They are unique because they are <span class="font-semibold">hydrophobic</span>, meaning they don't mix with water!</p>
+            <p class="text-lg leading-relaxed mb-4">Lipids are fantastic for <span class="font-semibold text-teal-green">long-term energy storage</span>. They provide a whopping 9 calories per gram, which is more than twice the energy provided by carbohydrates or proteins!</p>
+            <p class="text-lg leading-relaxed mb-4">Beyond energy, lipids are vital for:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Insulation:</strong> Keeping you warm.</li>
+                <li><strong class="text-teal-green">Protection:</strong> Cushioning your organs.</li>
+                <li><strong class="text-teal-green">Cell Membranes:</strong> Forming the crucial outer boundary of every cell (as phospholipids).</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Think about butter or cooking oils – those are lipids! Also, many skin moisturizers contain lipids to help keep your skin hydrated and protected.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 14: Saturated vs. Unsaturated Fats -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Saturated vs. Unsaturated Fats</h3>
+            <p class="text-lg leading-relaxed mb-4">Not all fats are created equal! The difference lies in their chemical structure:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Saturated fats:</strong> These have no double bonds in their fatty acid chains. This allows them to pack tightly together, making them <span class="font-semibold">solid at room temperature</span> (e.g., butter, coconut oil, animal fats).</li>
+                <li><strong class="text-teal-green">Unsaturated fats:</strong> These have one or more double bonds, which creates "kinks" in their chains. This prevents them from packing tightly, making them <span class="font-semibold">liquid at room temperature</span> (e.g., olive oil, avocado oil, nuts). Generally, unsaturated fats are considered better for heart health.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Nutritionists often recommend using olive oil (unsaturated) instead of butter (saturated) in your cooking to help reduce the risk of heart disease.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 15: Cholesterol -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Cholesterol: Friend or Foe?</h3>
+            <p class="text-lg leading-relaxed mb-4"><span class="font-semibold text-teal-green">Cholesterol</span> is a type of steroid lipid. Despite its bad reputation, it's actually an <span class="font-semibold">essential molecule</span> for your body!</p>
+            <p class="text-lg leading-relaxed mb-4">It's a crucial component of <span class="font-semibold">cell membranes</span>, helping to maintain their fluidity and integrity. It's also the precursor for many important <span class="font-semibold">hormones</span>, including sex hormones and adrenal hormones.</p>
+            <p class="text-lg leading-relaxed mb-4">However, problems arise when there's an <span class="font-semibold text-teal-green">excess of certain types of cholesterol</span> in the blood. This can lead to the formation of plaque in your arteries, which narrows them and significantly increases the risk of heart disease.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> During your annual health screenings, your doctor will often measure your cholesterol levels (LDL, HDL, total cholesterol) to assess your risk for cardiovascular diseases. This is why a balanced diet is so important!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 16: Lipids in Our Body -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Lipids in Our Body: More Than Just Fat</h3>
+            <p class="text-lg leading-relaxed mb-4">Lipids play a variety of roles within your body:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Phospholipids:</strong> These are special lipids that form the fundamental structure of all <span class="font-semibold">cell membranes</span>. They create a "bilayer" with hydrophilic (water-loving) heads facing outwards and hydrophobic (water-fearing) tails tucked inside, forming a protective barrier around cells.</li>
+                <li><strong class="text-teal-green">Adipose tissue:</strong> This is where your body stores fat. Beyond energy storage, adipose tissue also cushions vital organs and provides a layer of insulation, helping to regulate body temperature.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> That extra layer of fat your body stores can actually help keep you warm during cold winter months, acting as a natural insulator!</p>
+            </div>
+        </section>
+
+        <!-- Tab Content for Nucleic Acids (Combines Slides 17-19) -->
+        <section id="nucleic-acids-content" class="tab-content section-card">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">🧬 Nucleic Acids – DNA & RNA: The Information Carriers</h2>
+            <!-- Slide 17: Nucleic Acids – DNA & RNA -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Nucleic Acids: DNA & RNA</h3>
+            <p class="text-lg leading-relaxed mb-4">Nucleic acids are the true information storage and transfer molecules of life. The two main types are <span class="font-semibold text-teal-green">DNA (Deoxyribonucleic Acid)</span> and <span class="font-semibold text-teal-green">RNA (Ribonucleic Acid)</span>.</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">DNA:</strong> This is the master blueprint of life! It stores all your genetic information, dictating everything from your eye color to how your cells function. It typically exists as a double helix.</li>
+                <li><strong class="text-teal-green">RNA:</strong> This molecule acts as a messenger, transmitting the genetic information from DNA to guide the synthesis of proteins. RNA is typically single-stranded.</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">Both DNA and RNA are long chains made of repeating smaller units called <span class="font-semibold text-teal-green">nucleotides</span>.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> DNA testing is a powerful tool used in forensics to identify individuals at crime scenes and for paternity verification to establish biological relationships.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 18: Genes and Heredity -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Genes and Heredity: Passing on Traits</h3>
+            <p class="text-lg leading-relaxed mb-4"><span class="font-semibold text-teal-green">Genes</span> are specific segments of DNA that contain the instructions for building proteins or regulating other cellular functions. These genes are passed down from parents to offspring, which is the basis of <span class="font-semibold text-teal-green">heredity</span>.</p>
+            <p class="text-lg leading-relaxed mb-4">Genes determine many of your inherited traits, such as your eye color, hair color, blood type, and even certain predispositions to health conditions.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Have you ever noticed how family members often resemble each other? That's due to the genes they've inherited! Similarly, some diseases, like certain types of cancer or genetic disorders, can run in families because of inherited genetic variations.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 19: Mutations and Diseases -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Mutations and Diseases: When DNA Changes</h3>
+            <p class="text-lg leading-relaxed mb-4">Sometimes, the sequence of DNA can change. These changes are called <span class="font-semibold text-teal-green">mutations</span>. Mutations can occur spontaneously or be caused by environmental factors like radiation or certain chemicals.</p>
+            <p class="text-lg leading-relaxed mb-4">The impact of a mutation can vary widely:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li>They can be <span class="font-semibold">harmless</span> (having no noticeable effect).</li>
+                <li>They can be <span class="font-semibold">beneficial</span> (rarely, providing an advantage).</li>
+                <li>Most significantly, they can be <span class="font-semibold">harmful</span>, leading to altered protein function or production, which can cause various diseases.</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">Examples of diseases caused by harmful mutations include sickle cell anemia (affecting hemoglobin protein) and many types of cancer (often linked to mutations in genes that control cell division).</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Understanding mutations is crucial in cancer research. Many cancers develop due to an accumulation of mutations in genes that regulate cell growth and division, leading to uncontrolled cell proliferation.</p>
+            </div>
+        </section>
+
+        <!-- Tab Content for Metabolism & Energy (Combines Slides 20-23) -->
+        <section id="metabolism-energy-content" class="tab-content section-card">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">⚙️ Metabolism & Energy: Fueling Life</h2>
+            <!-- Slide 20: Enzymes in Daily Life -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Enzymes in Daily Life: Beyond Our Bodies</h3>
+            <p class="text-lg leading-relaxed mb-4">We've talked about enzymes in our bodies, but they're also incredibly useful in many everyday applications:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Digestion:</strong> Beyond human saliva, enzymes are used in food processing to break down ingredients.</li>
+                <li><strong class="text-teal-green">Laundry Detergents:</strong> Many modern detergents contain enzymes (like proteases, lipases, amylases) to break down protein, fat, and starch stains.</li>
+                <li><strong class="text-teal-green">Food Production:</strong> Enzymes are vital in making cheese, brewing beer, baking bread, and producing fruit juices.</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">A great example is the <span class="font-semibold text-teal-green">lactase enzyme</span>, which breaks down lactose (milk sugar) into simpler sugars.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> If you're <span class="font-semibold">lactose intolerant</span>, it means your body doesn't produce enough lactase enzyme. This leads to digestive discomfort when consuming dairy products. Many people take lactase supplements to help them digest milk!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 21: Metabolism – Chemical Engine -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Metabolism – Your Body's Chemical Engine</h3>
+            <p class="text-lg leading-relaxed mb-4"><span class="font-semibold text-teal-green">Metabolism</span> refers to all the chemical reactions that occur within your body to maintain life. It's a continuous process of building up and breaking down molecules, always working to keep you alive and functioning!</p>
+            <p class="text-lg leading-relaxed mb-4">Metabolism has two main branches:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Anabolism:</strong> These are "building-up" reactions. They synthesize complex molecules from simpler ones (e.g., building muscle protein from amino acids). Anabolic processes <span class="font-semibold">require energy</span>.</li>
+                <li><strong class="text-teal-green">Catabolism:</strong> These are "breaking-down" reactions. They break down complex molecules into simpler ones (e.g., breaking down glucose for energy). Catabolic processes <span class="font-semibold">release energy</span>.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> When you count calories, you're essentially tracking the energy input and output related to your metabolism! Understanding these processes is key for weight management and overall health.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 22: ATP – The Energy Currency -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">ATP – The Energy Currency of Life</h3>
+            <p class="text-lg leading-relaxed mb-4">Meet <span class="font-semibold text-teal-green">ATP (Adenosine Triphosphate)</span>, the most important energy-carrying molecule in your cells! Think of it as the universal "energy currency" that cells use to pay for all their activities.</p>
+            <p class="text-lg leading-relaxed mb-4">ATP is primarily made during <span class="font-semibold">cellular respiration</span> (the breakdown of glucose). When energy is needed, ATP is broken down, releasing a burst of energy that fuels processes like:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li>Muscle contraction 💪</li>
+                <li>Active transport (moving substances across cell membranes)</li>
+                <li>Synthesis of new molecules</li>
+                <li>Nerve impulse transmission</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> When you feel fatigued, it often means your body's ATP stores are running low. Conversely, after eating a meal, your body breaks down food to produce ATP, giving you an energy surge!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 23: Respiration – Making Energy -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Respiration – The Energy Factory</h3>
+            <p class="text-lg leading-relaxed mb-4"><span class="font-semibold text-teal-green"> cellular respiration</span> is the process by which cells break down glucose and other food molecules in the presence of oxygen to release energy (ATP). It's essentially how your body "burns" fuel to power itself.</p>
+            <p class="text-lg leading-relaxed mb-4">The simplified equation for aerobic (with oxygen) respiration is:</p>
+            <p class="text-center text-xl font-bold text-teal-green my-4">Glucose + Oxygen → CO₂ + H₂O + Energy (ATP)</p>
+            <p class="text-lg leading-relaxed mb-4">Most of this amazing energy-making process happens in specialized organelles within your cells called <span class="font-semibold text-teal-green">mitochondria</span>, often called the "powerhouses of the cell."</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Ever noticed how you breathe heavily after intense exercise? That's your body increasing its oxygen intake to fuel more cellular respiration, producing the extra ATP needed for your working muscles!</p>
+            </div>
+        </section>
+
+        <!-- Tab Content for Everyday Biochemistry (Combines Slides 24-31) -->
+        <section id="everyday-biochem-content" class="tab-content section-card">
+            <h2 class="text-4xl font-bold text-teal-green mb-6">🌍 Everyday Biochemistry: It's All Around You!</h2>
+            <!-- Slide 24: Vitamins – The Helpers -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Vitamins – The Essential Helpers</h3>
+            <p class="text-lg leading-relaxed mb-4"><span class="font-semibold text-teal-green">Vitamins</span> are organic molecules that your body needs in small amounts for various functions. They often act as <span class="font-semibold">coenzymes</span>, meaning they assist enzymes in carrying out their biochemical reactions efficiently.</p>
+            <p class="text-lg leading-relaxed mb-4">Each vitamin has specific roles:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Vitamin C:</strong> Boosts immunity and is essential for collagen synthesis (healthy skin, gums).</li>
+                <li><strong class="text-teal-green">Vitamin D:</strong> Crucial for calcium absorption, leading to strong bones.</li>
+                <li><strong class="text-teal-green">B Vitamins:</strong> Play key roles in energy metabolism, helping convert food into energy.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Severe vitamin deficiencies can lead to specific diseases. For example, a lack of Vitamin C causes scurvy, and a lack of Vitamin D can lead to rickets (soft bones) in children.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 25: Water – The Solvent of Life -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Water – The Solvent of Life</h3>
+            <p class="text-lg leading-relaxed mb-4">Water ($\text{H}_2\text{O}$) is not just a drink; it's the most abundant molecule in living organisms and absolutely essential for life. It's often called the "<span class="font-semibold text-teal-green">solvent of life</span>" because of its incredible ability to dissolve many substances.</p>
+            <p class="text-lg leading-relaxed mb-4">Most biochemical reactions occur in an <span class="font-semibold">aqueous solution</span> (meaning, in water!). Water also performs many other vital functions:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li>Maintains cell shape and structure.</li>
+                <li>Transports nutrients, oxygen, and waste products throughout the body.</li>
+                <li>Helps regulate body temperature through sweating.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Dehydration (not drinking enough water) can have serious effects on your body, impacting brain function, digestion, mood, and overall energy levels. Stay hydrated!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 26: Minerals – Inorganic Necessities -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Minerals – Inorganic Necessities</h3>
+            <p class="text-lg leading-relaxed mb-4"><span class="font-semibold text-teal-green">Minerals</span> are inorganic elements that your body needs in various amounts to function properly. Unlike vitamins, they are not organic (meaning they don't contain carbon-hydrogen bonds).</p>
+            <p class="text-lg leading-relaxed mb-4">Key minerals and their roles:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Iron (Fe):</strong> Essential component of hemoglobin, which carries oxygen in red blood cells.</li>
+                <li><strong class="text-teal-green">Calcium (Ca):</strong> Crucial for strong bones and teeth, muscle contraction, and nerve function.</li>
+                <li><strong class="text-teal-green">Zinc (Zn):</strong> Helps many enzymes function, supports immune system, and plays a role in wound healing.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Iron deficiency can lead to anemia, causing fatigue and weakness. A lack of calcium can result in brittle bones and an increased risk of osteoporosis.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 27: Balanced Diet – All Biomolecules Needed -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Balanced Diet – The Key to Health</h3>
+            <p class="text-lg leading-relaxed mb-4">For optimal health, it's not enough to just eat; you need a <span class="font-semibold text-teal-green">balanced diet</span>. This means consuming a variety of foods that provide all the essential nutrients:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li>Carbohydrates for energy</li>
+                <li>Proteins for building and repair</li>
+                <li>Fats for energy storage, insulation, and cell structure</li>
+                <li>Vitamins and Minerals as essential helpers</li>
+                <li>Plenty of Water for all bodily functions</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">A balanced diet helps to <span class="font-semibold">prevent malnutrition</span>, provides the necessary energy for your daily activities, and supports continuous growth and repair of your body tissues.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Consuming too much "junk food" often means you're getting excess calories but lacking essential vitamins, minerals, and fiber. This can lead to health issues over time, highlighting the importance of balanced nutrition.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 28: Biochemistry at the Supermarket -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Biochemistry at the Supermarket</h3>
+            <p class="text-lg leading-relaxed mb-4">Your knowledge of biochemistry can empower you to make healthier choices right at the grocery store!</p>
+            <p class="text-lg leading-relaxed mb-4">By taking a moment to <span class="font-semibold text-teal-green">read nutrition labels</span>, you can quickly identify foods that are:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li>Low in unhealthy fats (especially saturated and trans fats)</li>
+                <li>High in beneficial fiber</li>
+                <li>Rich in essential proteins</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">You can also learn to avoid products with excess added sugars and unhealthy saturated fats, which contribute to various health problems.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Being an informed consumer who understands basic biochemistry principles helps you navigate the supermarket aisles more effectively, leading to better dietary choices and improved health outcomes for you and your family.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 29: Biochemistry in the Bathroom -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Biochemistry in the Bathroom</h3>
+            <p class="text-lg leading-relaxed mb-4">Biochemistry isn't just about food and health; it's even in your bathroom cabinet!</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Shampoos:</strong> They use <span class="font-semibold">surfactants</span> (molecules that reduce surface tension) to lift dirt and oil from your hair. Some also contain enzymes or proteins for conditioning and repair.</li>
+                <li><strong class="text-teal-green">Toothpaste:</strong> Many toothpastes contain mild abrasives and detergents to clean your teeth. Some advanced toothpastes even use enzymes to help break down stains.</li>
+            </ul>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Whitening toothpastes often contain enzymes (like papain or bromelain, derived from fruits) that help break down the protein matrix of stains on your tooth enamel, making your teeth appear brighter!</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 30: Biochemistry is Everywhere -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Biochemistry is Everywhere!</h3>
+            <p class="text-lg leading-relaxed mb-4">From the moment you wake up until you go to sleep, biochemistry is at work all around and within you. It's truly the science of life!</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Cooking:</strong> Chemical reactions transform ingredients.</li>
+                <li><strong class="text-teal-green">Exercising:</strong> Muscles use ATP from metabolic processes.</li>
+                <li><strong class="text-teal-green">Breathing:</b> Oxygen transport and cellular respiration.</li>
+            </ul>
+            <p class="text-lg leading-relaxed mb-4">Understanding biochemistry helps you make informed decisions about your health, nutrition, and even how you interact with your environment.</p>
+            <div class="highlight-box">
+                <p><strong>Real-Life Application:</strong> Being aware of biochemical principles can lead to better lifestyle choices, from what you eat to how much you exercise, ultimately contributing to a healthier and more fulfilling life.</p>
+            </div>
+
+            <hr class="my-8 border-t-2 border-gray-200">
+
+            <!-- Slide 31: Everyday Examples Recap -->
+            <h3 class="text-3xl font-bold text-navy-blue mb-4">Everyday Examples Recap</h3>
+            <p class="text-lg leading-relaxed mb-4">Let's quickly recap some cool everyday examples where biochemistry is at play:</p>
+            <ul class="list-disc list-inside text-lg leading-relaxed mb-4 space-y-2">
+                <li><strong class="text-teal-green">Baking Bread:</strong> Yeast enzymes ferment sugars, producing carbon dioxide gas that makes the bread rise and gives it its airy texture.</li>
+                <li><strong class="text-teal-green">Rotting Fruit:</strong> Enzymes naturally present in the fruit (and from microorganisms) break down its cells, causing it to soften and decay.</li>
+                <li><strong class="text-teal-green">Bruising:</strong> When you get a bruise, it's due to damaged blood vessels releasing blood into tissues. Enzymes then begin to degrade the proteins and other components of the damaged cells, leading to the color changes you see.</li>
+            </ul>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz-content" class="tab-content section-card mt-12">
+            <h2 class="text-4xl font-bold text-navy-blue mb-6 text-center">🧠 Test Your Biochemistry Knowledge!</h2>
+            <p class="text-lg text-center mb-6">Ready to see how much you've learned? Take this quick quiz!</p>
+
+            <div class="flex flex-col quiz-container-flex">
+                <!-- Main Quiz Area -->
+                <div class="flex-grow bg-gray-50 p-6 rounded-xl shadow-inner">
+                    <div id="question-display" class="mb-6">
+                        <p class="text-xl font-semibold mb-4" id="question-text"></p>
+                        <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Options will be loaded here by JS -->
                         </div>
                     </div>
-                     <div>
-                        <h3 class="text-2xl font-semibold mb-4 text-center">Key Differences</h3>
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr>
-                                    <th class="p-3 border-b-2 border-gray-300 bg-gray-100">Feature</th>
-                                    <th class="p-3 border-b-2 border-gray-300 bg-blue-50 text-blue-800">Protein 🏗️</th>
-                                    <th class="p-3 border-b-2 border-gray-300 bg-green-50 text-green-800">Carbohydrate ⛽</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b border-gray-200">
-                                    <td class="p-3 font-semibold">Primary Role</td>
-                                    <td class="p-3">Build & Repair</td>
-                                    <td class="p-3">Provide Energy</td>
-                                </tr>
-                                 <tr class="bg-gray-50 border-b border-gray-200">
-                                    <td class="p-3 font-semibold">Building Block</td>
-                                    <td class="p-3">Amino Acids</td>
-                                    <td class="p-3">Monosaccharides</td>
-                                </tr>
-                                <tr class="border-b border-gray-200">
-                                    <td class="p-3 font-semibold">Energy Use</td>
-                                    <td class="p-3">Secondary source</td>
-                                    <td class="p-3">Primary source</td>
-                                </tr>
-                                <tr class="bg-gray-50 border-b border-gray-200">
-                                    <td class="p-3 font-semibold">Examples</td>
-                                    <td class="p-3">Meat, eggs, nuts</td>
-                                    <td class="p-3">Bread, rice, fruit</td>
-                                </tr>
-                                <tr class="border-b border-gray-200">
-                                    <td class="p-3 font-semibold">Importance</td>
-                                    <td class="p-3">Needed for growth, repair, and body functions</td>
-                                    <td class="p-3">Needed for energy, especially for the brain and muscles</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div id="feedback-display" class="quiz-feedback hidden"></div>
+                    <div class="flex justify-between items-center mt-6">
+                        <button id="next-btn" class="btn-primary">Next Question</button>
+                        <button id="restart-btn" class="btn-primary hidden">Restart Quiz</button>
+                        <p class="text-lg font-semibold">Score: <span id="score">0</span> / <span id="total-questions"></span></p>
                     </div>
-                </div>
 
-                <div class="mt-12">
-                    <h3 class="text-2xl font-semibold mb-4 text-center">Real-Life Applications</h3>
-                    <div id="application-container" class="grid sm:grid-cols-3 gap-4">
-                        <!-- JS to populate -->
+                    <!-- Quiz Sidebar (MOVED HERE) -->
+                    <div class="quiz-sidebar">
+                        <h4 class="text-lg font-bold text-navy-blue mb-3">Questions</h4>
+                        <div id="quiz-sidebar-nav" class="quiz-sidebar-grid">
+                            <!-- Sidebar buttons will be generated here -->
+                        </div>
                     </div>
-                    <div id="application-info" class="mt-4 p-6 bg-gray-100 rounded-lg min-h-[120px]">
-                        Click a scenario above to see how biochemistry applies.
-                    </div>
-                </div>
-            </section>
 
-            <!-- Quiz Section -->
-            <section id="quiz" class="content-section">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-gray-800">Test Your Knowledge!</h2>
-                    <p class="max-w-3xl mx-auto text-gray-600 mt-2">You've explored the world of proteins and carbohydrates. Now it's time to put your knowledge to the test with a quick quiz. Select your answer for each question and see how you do!</p>
+                    <!-- Quiz Summary Section -->
+                    <div id="quiz-summary" class="quiz-summary-card hidden">
+                        <h3 class="text-3xl font-bold text-navy-blue mb-4">Quiz Summary</h3>
+                        <p class="text-xl font-semibold mb-4">Final Score: <span id="final-score">0</span> / <span id="total-questions-summary"></span></p>
+
+                        <h4 class="text-2xl font-bold text-teal-green mb-3">Weakest Topics Analysis</h4>
+                        <div id="weak-topics-analysis" class="space-y-2">
+                            <!-- Weak topics will be displayed here -->
+                        </div>
+                        <button id="summary-restart-btn" class="btn-primary mt-6">Restart Quiz</button>
+                    </div>
                 </div>
-                <div id="quiz-container" class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-200">
-                     <!-- JS to populate -->
-                </div>
-                 <div id="quiz-result" class="max-w-2xl mx-auto mt-6 text-center text-xl font-semibold"></div>
-            </section>
-        </main>
-    </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="header-bg py-6 text-center text-white text-sm mt-8">
+        <p>&copy; 2025 Journey into Biochemistry. All rights reserved. Designed for educational purposes.</p>
+    </footer>
 
     <script>
-        const navButtons = document.querySelectorAll('.nav-btn');
-        const contentSections = document.querySelectorAll('.content-section');
-        let quizActive = false; // New state variable
-
-        const proteinSynthesisData = [
-            { step: "1. DNA Recipe 🧬", explanation: "It all starts with DNA, our body's master instruction book. A specific gene contains the 'recipe' for one protein." },
-            { step: "2. RNA Copy 📝", explanation: "A molecule called RNA acts as a messenger, creating a temporary copy of the DNA's recipe." },
-            { step: "3. Ribosome Chef 👨‍🍳", explanation: "The RNA copy travels to a ribosome, a tiny 'chef' in the cell. The ribosome reads the recipe and joins the right amino acids in order." },
-            { step: "4. Folding into Shape 🔗", explanation: "The string of amino acids folds into a unique 3D shape. This final shape is the functional protein!" }
-        ];
-
-        const proteinStructureData = {
-            primary: "<strong>Primary (1°):</strong> This is the simplest level – just the specific sequence or order of amino acids in a chain, like beads on a string. ➖",
-            secondary: "<strong>Secondary (2°):</strong> The amino acid chain starts to fold and coil into simple repeating patterns, most commonly spirals (alpha-helices) or zigzags (beta-sheets). 〰️",
-            tertiary: "<strong>Tertiary (3°):</strong> The entire chain, including its spirals and sheets, folds up into a complex, unique 3D blob. This final shape is crucial for the protein's job. 🌀",
-            quaternary: "<strong>Quaternary (4°):</strong> Some proteins are made of more than one amino acid chain (or 'blob'). This level describes how these multiple chains are stuck together to form a larger protein complex. 🧩"
-        };
-
-        const proteinTypesData = [
-            { name: "Enzymes", description: "Speed up chemical reactions, like breaking down food. 🔬", icon: "🔬" },
-            { name: "Structural", description: "Provide support and build body parts. Ex: Keratin in hair/nails, collagen in skin. 🏗️", icon: "🏗️" },
-            { name: "Transport", description: "Carry molecules around the body. Ex: Hemoglobin carries oxygen in blood. 🚚", icon: "🚚" },
-            { name: "Defense", description: "Fight off germs. Ex: Antibodies fight off bacteria and viruses. 🛡️", icon: "🛡️" },
-            { name: "Hormonal", description: "Act as chemical messengers. Ex: Insulin tells cells to take in sugar. ✉️", icon: "✉️" },
-            { name: "Motor", description: "Help with movement. Ex: Myosin in muscle cells. 💪", icon: "💪" }
-        ];
-
-        const carbUsageData = [
-             { step: "1. Eat Carbs 🍚", explanation: "You consume carbohydrates in foods like bread, pasta, or fruit." },
-             { step: "2. Break Down ✂️", explanation: "Enzymes in your digestive system break down complex carbs into the simple sugar, glucose." },
-             { step: "3. Enter Blood 🩸", explanation: "Glucose is absorbed from your intestines into your bloodstream, raising your blood sugar." },
-             { step: "4. Enter Cells 🔑", explanation: "The hormone insulin acts like a key, helping glucose move from the blood into your body's cells." },
-             { step: "5. Make Energy ⚡", explanation: "Inside the cells, glucose is used in a process called cellular respiration to create ATP, the main energy currency of the cell." }
-        ];
-
-        const carbTypesData = [
-            { name: "Monosaccharides 🍬", description: "<strong>'One Sugar'</strong> - The simplest form. Quick energy. Examples: Glucose (main fuel), Fructose (in fruit).", color: "bg-green-100" },
-            { name: "Disaccharides 🍭", description: "<strong>'Two Sugars'</strong> - Two monosaccharides linked together. Example: Sucrose (table sugar) = glucose + fructose.", color: "bg-yellow-100" },
-            { name: "Polysaccharides 🌾", description: "<strong>'Many Sugars'</strong> - Long chains of monosaccharides. Used for energy storage or structure. Examples: Starch, Glycogen, Cellulose.", color: "bg-blue-100" }
-        ];
-        
-        const applicationData = {
-            athlete: "An athlete eats a pasta dinner (high in carbs) before a race. The carbs are stored as glycogen in their muscles, providing a readily available source of quick energy during the competition. 🏃‍♂️",
-            bodybuilder: "A bodybuilder consumes a protein shake after a workout. The amino acids from the protein are used to repair the tiny tears in muscle fibers caused by lifting weights, leading to muscle growth. 💪",
-            diabetic: "A person with diabetes must carefully manage their carb intake because their body either doesn't produce enough insulin or can't use it effectively. This helps prevent dangerous spikes in blood sugar. 🩸",
-        };
-
-        const quizData = [
+        // Quiz Questions Data (UPDATED with topics)
+        const quizQuestions = [
             {
-                question: "1. What’s your body’s main fuel? ⛽",
-                options: ["Proteins", "Fats", "Carbohydrates", "Vitamins"],
-                answer: "Carbohydrates",
-                correctExplanation: "Carbohydrates are indeed the body's primary source of energy, fueling all your activities.",
-                wrongExplanation: "While other nutrients are important, Carbohydrates are the main fuel source for your body."
+                question: "1. What is biochemistry?",
+                options: [
+                    "A) Study of chemical processes in living organisms",
+                    "B) Study of rocks and minerals",
+                    "C) Study of stars",
+                    "D) Study of population genetics"
+                ],
+                answer: "A) Study of chemical processes in living organisms",
+                explanation: "Biochemistry examines chemical reactions inside living things, explaining how bodies function at a molecular level. For example, metabolism and the way nutrients are processed depend on biochemical principles.",
+                topic: "What is Biochemistry?"
             },
             {
-                question: "2. Name two protein-rich foods. 🥚🥩",
-                options: ["Apples, Bananas", "Bread, Rice", "Eggs, Meat", "Potatoes, Pasta"],
-                answer: "Eggs, Meat",
-                correctExplanation: "Eggs and meat are excellent sources of protein, vital for building and repairing tissues.",
-                wrongExplanation: "While all options are foods, Eggs and Meat are specifically known for their high protein content."
+                question: "2. Which four are main biomolecules?",
+                options: [
+                    "A) Proteins, carbohydrates, lipids, vitamins",
+                    "B) Proteins, carbohydrates, lipids, nucleic acids",
+                    "C) Vitamins, minerals, water, proteins",
+                    "D) Carbohydrates, water, enzymes, lipids"
+                ],
+                answer: "B) Proteins, carbohydrates, lipids, nucleic acids",
+                explanation: "The four biomolecules fundamental to life are proteins, carbohydrates, lipids, and nucleic acids. Vitamins, minerals, and water assist these molecules but are not primary biomolecules.",
+                topic: "Biomolecules"
             },
             {
-                question: "3. Which sugar gives you quick energy? ⚡",
-                options: ["Cellulose", "Starch", "Glycogen", "Glucose"],
-                answer: "Glucose",
-                correctExplanation: "Glucose is a simple sugar that your body can quickly convert into energy for immediate use.",
-                wrongExplanation: "Glucose is the simple sugar that provides quick energy to your cells."
+                question: "3. Proteins are made from which building blocks?",
+                options: [
+                    "A) Monosaccharides",
+                    "B) Fatty acids",
+                    "C) Amino acids",
+                    "D) Nucleotides"
+                ],
+                answer: "C) Amino acids",
+                explanation: "Amino acids join via peptide bonds to form proteins. Proteins build muscles and act as enzymes and antibodies.",
+                topic: "Proteins"
             },
             {
-                question: "4. Why can’t we digest cellulose? 🥦",
-                options: ["It's too big", "We lack the right enzymes", "It's stored as fat", "It's a defense protein"],
-                answer: "We lack the right enzymes",
-                correctExplanation: "Humans don't have the specific enzymes required to break down cellulose, which is why it acts as fiber.",
-                wrongExplanation: "We can't digest cellulose because our bodies don't produce the necessary enzymes."
+                question: "4. Protein’s function depends on:  ",
+                options: [
+                    "A) Its sequence only",
+                    "B) Its shape",
+                    "C) Color",
+                    "D) Temperature only"
+                ],
+                answer: "B) Its shape",
+                explanation: "A protein’s 3D shape dictates its function—enzymes bind to specific substrates due to their shape. Heat can denature proteins, like hair keratin.",
+                topic: "Proteins"
             },
             {
-                question: "5. What are the smaller building blocks of proteins called? 🧱",
-                options: ["Monosaccharides", "Fatty acids", "Amino acids", "Nucleotides"],
-                answer: "Amino acids",
-                correctExplanation: "Amino acids are the fundamental units that link together to form proteins.",
-                wrongExplanation: "Amino acids are the individual units that make up proteins."
+                question: "5. What do enzymes do?",
+                options: [
+                    "A) Provide energy",
+                    "B) Speed up chemical reactions",
+                    "C) Store genetic info",
+                    "D) Build cell membranes"
+                ],
+                answer: "B) Speed up chemical reactions",
+                explanation: "Enzymes catalyze reactions, speeding them up without being used up, like salivary amylase breaking down starch in your mouth.",
+                topic: "Metabolism & Energy"
             },
             {
-                question: "6. What is the process called when a protein changes its 3D shape and stops working? 🌀",
-                options: ["Synthesis", "Denaturation", "Digestion", "Absorption"],
-                answer: "Denaturation",
-                correctExplanation: "Denaturation is the process where a protein loses its specific 3D structure, often due to heat or pH changes, rendering it non-functional.",
-                wrongExplanation: "When a protein loses its shape and function, it's called denaturation."
+                question: "6. What is the correct order of protein synthesis?",
+                options: [
+                    "A) DNA → RNA → Protein",
+                    "B) RNA → DNA → Protein",
+                    "C) Protein → RNA → DNA",
+                    "D) RNA → Protein → DNA"
+                ],
+                answer: "A) DNA → RNA → Protein",
+                explanation: "DNA is transcribed to RNA, which is translated into proteins at ribosomes. Mistakes here can cause genetic disorders.",
+                topic: "Proteins"
             },
             {
-                question: "7. Which type of protein speeds up chemical reactions in the body? 🔬",
-                options: ["Structural proteins", "Transport proteins", "Enzymes", "Hormonal proteins"],
-                answer: "Enzymes",
-                correctExplanation: "Enzymes are biological catalysts that accelerate biochemical reactions without being consumed in the process.",
-                wrongExplanation: "Enzymes are the specialized proteins that act as catalysts for chemical reactions in the body."
+                question: "7. Which food is a rich protein source?",
+                options: [
+                    "A) Fruits",
+                    "B) Nuts and meat",
+                    "C) Bread",
+                    "D) Oils"
+                ],
+                answer: "B) Nuts and meat",
+                explanation: "Nuts, meat, eggs, and dairy supply essential amino acids needed for growth and repair.",
+                topic: "Proteins"
             },
             {
-                question: "8. What is the primary role of structural proteins? 🏗️",
-                options: ["Carrying oxygen", "Building body parts", "Sending signals", "Fighting germs"],
-                answer: "Building body parts",
-                correctExplanation: "Structural proteins like keratin and collagen provide support and form the framework of tissues and organs.",
-                wrongExplanation: "Structural proteins are primarily responsible for providing physical support and building components of the body."
+                question: "8. Carbohydrates mainly provide:",
+                options: [
+                    "A) Energy",
+                    "B) Body structure",
+                    "C) Hormones",
+                    "D) Genetic info"
+                ],
+                answer: "A) Energy",
+                explanation: "Carbohydrates, such as glucose, are the body’s primary energy source.",
+                topic: "Carbohydrates"
             },
             {
-                question: "9. Where does your body store glycogen? 🏋️‍♂️",
-                options: ["In the blood", "In the brain", "In the liver and muscles", "In the bones"],
-                answer: "In the liver and muscles",
-                correctExplanation: "Glycogen is the stored form of glucose, primarily found in the liver and muscle cells, ready for energy needs.",
-                wrongExplanation: "Glycogen, the stored form of glucose, is mainly found in the liver and muscles."
+                question: "9. Glucose is broken down to produce:",
+                options: [
+                    "A) DNA",
+                    "B) ATP (energy)",
+                    "C) Proteins",
+                    "D) Fats"
+                ],
+                answer: "B) ATP (energy)",
+                explanation: "Cellular respiration converts glucose into ATP, the cell’s usable energy currency.",
+                topic: "Metabolism & Energy"
             },
             {
-                question: "10. Which of these foods is a good source of plant-based protein? 🌱",
-                options: ["Milk", "Chicken", "Lentils", "Butter"],
-                answer: "Lentils",
-                correctExplanation: "Lentils are a fantastic source of plant-based protein, along with other legumes and nuts.",
-                wrongExplanation: "While milk and chicken are protein sources, lentils are a great example of a plant-based protein."
+                question: "10. Starch, cellulose, and glycogen differ by:",
+                options: [
+                    "A) Their sugar units",
+                    "B) Their sources and functions",
+                    "C) Their color",
+                    "D) Their pH"
+                ],
+                answer: "B) Their sources and functions",
+                explanation: "Starch stores energy in plants, cellulose forms plant fiber aiding digestion, glycogen stores energy in animals.",
+                topic: "Carbohydrates"
             },
             {
-                question: "11. What is the main instruction book for making proteins in your body? 🧬",
-                options: ["RNA", "Ribosomes", "Amino acids", "DNA"],
-                answer: "DNA",
-                correctExplanation: "DNA contains the genetic code, the 'blueprint' for all proteins in your body.",
-                wrongExplanation: "DNA is the master blueprint that contains the instructions for building proteins."
+                question: "11. Fiber helps digestion by:",
+                options: [
+                    "A) Being absorbed as energy",
+                    "B) Helping move food through intestines",
+                    "C) Breaking down proteins",
+                    "D) Increasing sugar levels"
+                ],
+                answer: "B) Helping move food through intestines",
+                explanation: "Dietary fiber cleans out the digestive system preventing constipation and keeping gut health.",
+                topic: "Carbohydrates"
             },
             {
-                question: "12. What happens to extra glucose if you eat too much sugar? 📈",
-                options: ["It's excreted immediately", "It's stored as fat", "It turns into protein", "It's used to build bones"],
-                answer: "It's stored as fat",
-                correctExplanation: "When glucose intake exceeds immediate energy needs, the excess is converted and stored as fat for long-term energy reserves.",
-                wrongExplanation: "Excess glucose is converted into fat for storage in the body."
+                question: "12. Lipids include:",
+                options: [
+                    "A) Fats, oils, waxes",
+                    "B) Carbohydrates only",
+                    "C) Amino acids",
+                    "D) Vitamins"
+                ],
+                answer: "A) Fats, oils, and waxes",
+                explanation: "Lipids are fats, oils, and waxes used for energy storage, insulation, and forming cell membranes.",
+                topic: "Lipids"
             },
             {
-                question: "13. Which type of carbohydrate is table sugar? 🍭",
-                options: ["Monosaccharide", "Disaccharide", "Polysaccharide", "Fiber"],
-                answer: "Disaccharide",
-                correctExplanation: "Table sugar, or sucrose, is a disaccharide made of one glucose and one fructose molecule.",
-                wrongExplanation: "Table sugar (sucrose) is a disaccharide, meaning it's composed of two sugar units."
+                question: "13. Saturated fats are:",
+                options: [
+                    "A) Solid at room temperature",
+                    "B) Liquid at room temperature",
+                    "C) Carbohydrates",
+                    "D) Water-soluble"
+                ],
+                answer: "A) Solid at room temperature",
+                explanation: "Saturated fats (like butter) are solid and can increase heart disease risk if consumed excessively.",
+                topic: "Lipids"
             },
             {
-                question: "14. Why does your brain need a constant supply of glucose? 🧠",
-                options: ["To build new cells", "To fight infections", "To stay hydrated", "For energy and proper function"],
-                answer: "For energy and proper function",
-                correctExplanation: "Glucose is the brain's primary and preferred fuel source, essential for its continuous activity and cognitive functions.",
-                wrongExplanation: "The brain relies heavily on glucose for its energy needs to function properly."
+                question: "14. Which lipid is important for cell membranes?",
+                options: [
+                    "A) Phospholipid",
+                    "B) Cholesterol",
+                    "C) Wax",
+                    "D) Saturated fat"
+                ],
+                answer: "A) Phospholipid",
+                explanation: "Phospholipids arrange themselves into bilayers, forming the protective barrier of cells.",
+                topic: "Lipids"
             },
             {
-                question: "15. What is the role of insulin in carbohydrate metabolism? 🔑",
-                options: ["To break down proteins", "To help glucose enter cells", "To store fat", "To transport oxygen"],
-                answer: "To help glucose enter cells",
-                correctExplanation: "Insulin is a hormone that acts like a key, allowing glucose to enter cells from the bloodstream to be used for energy.",
-                wrongExplanation: "Insulin's main role is to facilitate the entry of glucose into cells from the bloodstream."
+                question: "15. Cholesterol is:",
+                options: [
+                    "A) A harmful fat only",
+                    "B) Necessary but harmful in excess",
+                    "C) A carbohydrate",
+                    "D) A vitamin"
+                ],
+                answer: "B) Necessary but harmful in excess",
+                explanation: "Cholesterol is essential for membranes and hormones but excess causes artery blockage.",
+                topic: "Lipids"
             },
             {
-                question: "16. Which of these is a fun fact about protein? 🕷️",
-                options: ["It makes up your bones", "Spider silk is stronger than steel and made of protein", "It is only found in animal products", "It is exclusively used for energy"],
-                answer: "Spider silk is stronger than steel and made of protein",
-                correctExplanation: "Spider silk's incredible strength is indeed due to its unique protein composition.",
-                wrongExplanation: "A fascinating fact about protein is that spider silk, known for its strength, is entirely made of protein."
+                question: "16. What do DNA and RNA do?",
+                options: [
+                    "A) Carry genetic information",
+                    "B) Store energy",
+                    "C) Supply nutrition",
+                    "D) Digest food"
+                ],
+                answer: "A) Carry genetic information",
+                explanation: "DNA is the cell’s blueprint; RNA carries instructions to build proteins.",
+                topic: "Nucleic Acids"
             },
             {
-                question: "17. What are the three elements that carbohydrates are made of? 🧪",
-                options: ["Nitrogen, Oxygen, Hydrogen", "Carbon, Hydrogen, Oxygen", "Sulfur, Phosphorus, Carbon", "Iron, Calcium, Zinc"],
-                answer: "Carbon, Hydrogen, Oxygen",
-                correctExplanation: "Carbohydrates are organic molecules composed of Carbon (C), Hydrogen (H), and Oxygen (O).",
-                wrongExplanation: "Carbohydrates are composed of carbon, hydrogen, and oxygen."
+                question: "17. Differences between DNA and RNA include:",
+                options: [
+                    "A) DNA has uracil; RNA has thymine",
+                    "B) DNA double-stranded; RNA single-stranded",
+                    "C) Both are double-stranded",
+                    "D) Both have thymine"
+                ],
+                answer: "B) DNA double-stranded; RNA single-stranded",
+                explanation: "DNA is double helical and contains thymine; RNA is single-stranded and uses uracil.",
+                topic: "Nucleic Acids"
             },
             {
-                question: "18. What is the primary level of protein structure? ➖",
-                options: ["The 3D blob shape", "Spirals or zigzags", "The order of amino acids", "Multiple blobs stuck together"],
-                answer: "The order of amino acids",
-                correctExplanation: "The primary structure is simply the linear sequence of amino acids, which dictates all subsequent folding.",
-                wrongExplanation: "The primary structure of a protein refers to the unique sequence of its amino acids."
+                question: "18. Enzymes work best at:",
+                options: [
+                    "A) High temperatures only",
+                    "B) A specific temperature and pH range",
+                    "C) Any condition",
+                    "D) Low temperatures only"
+                ],
+                answer: "B) A specific temperature and pH range",
+                explanation: "Enzyme shape is sensitive; extreme heat or pH changes can denature them and stop function.",
+                topic: "Metabolism & Energy"
             },
             {
-                question: "19. Which food source is rich in fiber, helping with digestion? 🍎",
-                options: ["Meat", "Dairy", "Whole grains", "Sweets"],
-                answer: "Whole grains",
-                correctExplanation: "Whole grains, along with fruits and vegetables, are rich in fiber, which is crucial for a healthy digestive system.",
-                wrongExplanation: "Whole grains are a great source of fiber, which aids in digestion."
+                question: "19. What is metabolism?  ",
+                options: [
+                    "A) The breakdown and build-up of molecules in the body",
+                    "B) Protein synthesis only",
+                    "C) Digestion only",
+                    "D) Breathing only"
+                ],
+                answer: "A) The breakdown and build-up of molecules in the body",
+                explanation: "Metabolism consists of catabolism (breaking down molecules for energy) and anabolism (building molecules using energy).",
+                topic: "Metabolism & Energy"
             },
             {
-                question: "20. What is the tiny 'chef' in the cell that reads the RNA recipe? 👨‍🍳",
-                options: ["DNA", "Enzyme", "Ribosome", "Mitochondria"],
-                answer: "Ribosome",
-                correctExplanation: "Ribosomes are the cellular machinery responsible for translating RNA into protein sequences.",
-                wrongExplanation: "The ribosome is the cellular component responsible for reading the RNA recipe and assembling proteins."
+                question: "20. ATP is:",
+                options: [
+                    "A) Energy storing molecule in cells",
+                    "B) A protein",
+                    "C) A mineral",
+                    "D) A carbohydrate"
+                ],
+                answer: "A) Energy storing molecule in cells",
+                explanation: "ATP stores usable energy produced during respiration and powers cellular functions.",
+                topic: "Metabolism & Energy"
+            },
+            {
+                question: "21. Cellular respiration produces:",
+                options: [
+                    "A) Oxygen and glucose",
+                    "B) Carbon dioxide, water, and energy",
+                    "C) Proteins",
+                    "D) Lipids"
+                ],
+                answer: "B) Carbon dioxide, water, and energy",
+                explanation: "Glucose reacts with oxygen to produce CO₂, water, and ATP energy.",
+                topic: "Metabolism & Energy"
+            },
+            {
+                question: "22. Vitamins help because they:",
+                options: [
+                    "A) Directly provide energy",
+                    "B) Assist enzyme functions as coenzymes",
+                    "C) Build proteins",
+                    "D) Digest carbohydrates"
+                ],
+                answer: "B) Assist enzyme functions as coenzymes",
+                explanation: "Vitamins like B and C support enzymes during biochemical reactions.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "23. Vitamin C deficiency leads to:",
+                options: [
+                    "A) Rickets",
+                    "B) Scurvy",
+                    "C) Anemia",
+                    "D) Diabetes"
+                ],
+                answer: "B) Scurvy",
+                explanation: "Without enough Vitamin C, collagen synthesis suffers, causing bleeding gums and bruising.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "24. Water is important because:",
+                options: [
+                    "A) It dissolves substances for reactions",
+                    "B) It gives color to cells",
+                    "C) It stores energy",
+                    "D) It builds proteins"
+                ],
+                answer: "A) It dissolves substances for reactions",
+                explanation: "Most biochemical reactions occur in aqueous solutions, making water essential.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "25. Minerals such as iron are needed for:",
+                options: [
+                    "A) Oxygen transport in blood",
+                    "B) Protein synthesis",
+                    "C) DNA structure",
+                    "D) Digestion"
+                ],
+                answer: "A) Oxygen transport in blood",
+                explanation: "Iron carries oxygen bound to hemoglobin in red blood cells.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "26. A balanced diet includes:",
+                options: [
+                    "A) Only proteins",
+                    "B) Carbs, proteins, fats, vitamins, minerals, and water",
+                    "C) Only vitamins and minerals",
+                    "D) Fast food only"
+                ],
+                answer: "B) Carbs, proteins, fats, vitamins, minerals, and water",
+                explanation: "All nutrient groups are required for energy, growth, repair, and biochemical regulation.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "27. You can read ingredient lists and nutrition info to:",
+                options: [
+                    "A) Choose unhealthy foods",
+                    "B) Choose low-fat, high-fiber, and protein-rich foods",
+                    "C) Ignore the content",
+                    "D) Only focus on calories"
+                ],
+                answer: "B) Choose low-fat, high-fiber, and protein-rich foods",
+                explanation: "Being informed helps you maintain a healthier diet and avoid excess sugars or saturated fats.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "28. Shampoos and toothpastes involve biochemistry because:",
+                options: [
+                    "A) They are natural only",
+                    "B) They contain chemicals and enzymes that clean and protect",
+                    "C) They don’t interact with the body",
+                    "D) They don’t contain enzymes"
+                ],
+                answer: "B) They contain chemicals and enzymes that clean and protect",
+                explanation: "Enzymes in whitening toothpaste break down stains; shampoos contain surfactants that clean effectively.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "29. Baking bread is an example of biochemistry because:",
+                options: [
+                    "A) It uses enzymes from yeast to produce gas and make bread rise",
+                    "B) It involves only chemistry, no biology",
+                    "C) It does not involve any molecules",
+                    "D) It’s just a mechanical process"
+                ],
+                answer: "A) It uses enzymes from yeast to produce gas and make bread rise",
+                explanation: "Yeast enzymes ferment sugars producing CO₂ that causes dough to rise.",
+                topic: "Everyday Biochemistry"
+            },
+            {
+                question: "30. Why is biochemistry important in everyday life?",
+                options: [
+                    "A) It helps us make informed health choices",
+                    "B) It only matters in labs",
+                    "C) It has no role outside school",
+                    "D) It only applies to animals"
+                ],
+                answer: "A) It helps us make informed health choices",
+                explanation: "Understanding biochemistry aids nutrition, medicine, exercise, and daily products like cosmetics.",
+                topic: "Everyday Biochemistry"
             }
         ];
-        
-        function init() {
-            showSection('home');
-            
-            navButtons.forEach(btn => {
-                btn.addEventListener('click', (event) => {
-                    const target = btn.dataset.target;
-                    if (quizActive && target !== 'quiz') {
-                        event.preventDefault(); // Prevent navigation if in quiz mode and not clicking quiz button
-                        return;
-                    }
-                    showSection(target);
-                });
-            });
 
-            setupProteinSection();
-            setupCarbsSection();
-            setupCompareSection();
-            setupQuizSection();
+        // Quiz elements
+        const questionDisplay = document.getElementById('question-display');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackDisplay = document.getElementById('feedback-display');
+        const nextButton = document.getElementById('next-btn');
+        const restartButton = document.getElementById('restart-btn');
+        const scoreSpan = document.getElementById('score');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const quizSummary = document.getElementById('quiz-summary');
+        const finalScoreSpan = document.getElementById('final-score');
+        const totalQuestionsSummarySpan = document.getElementById('total-questions-summary');
+        const weakTopicsAnalysisDiv = document.getElementById('weak-topics-analysis');
+        const summaryRestartBtn = document.getElementById('summary-restart-btn');
+        const quizSidebarNav = document.getElementById('quiz-sidebar-nav'); // New: Sidebar navigation container
+
+
+        // Tab elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOptionButton = null;
+        let questionStartTime = 0;
+        let questionPerformanceData = Array(quizQuestions.length).fill(null); // Initialize with nulls for each question
+
+        // --- Quiz Functions ---
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            questionPerformanceData = Array(quizQuestions.length).fill(null); // Reset data for new quiz
+            totalQuestionsSpan.textContent = quizQuestions.length;
+            scoreSpan.textContent = score;
+            restartButton.classList.add('hidden');
+            nextButton.textContent = 'Next Question';
+            nextButton.classList.remove('hidden');
+            questionDisplay.classList.remove('hidden'); // Show question area
+            quizSummary.classList.add('hidden'); // Hide summary
+            generateSidebarNav(); // Generate sidebar on quiz start
+            loadQuestion(currentQuestionIndex); // Load the first question
         }
 
-        function showSection(targetId) {
-            contentSections.forEach(section => {
-                section.classList.toggle('active', section.id === targetId);
-            });
-            navButtons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.target === targetId);
-                // Add/remove disabled class for visual cue
-                if (targetId === 'quiz' && btn.dataset.target !== 'quiz') {
-                    btn.classList.add('disabled-quiz');
-                } else if (targetId !== 'quiz' || !quizActive) { // Re-enable if leaving quiz or quiz is submitted
-                    btn.classList.remove('disabled-quiz');
-                }
-            });
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            selectedOptionButton = null; // Reset selected option for new question
+            feedbackDisplay.classList.add('hidden');
+            feedbackDisplay.textContent = '';
+            nextButton.disabled = true; // Disable next until an option is selected
 
-            if (targetId === 'quiz') {
-                quizActive = true;
-                // Ensure all nav buttons except quiz are disabled when entering quiz
-                navButtons.forEach(btn => {
-                    if (btn.dataset.target !== 'quiz') {
-                        btn.classList.add('disabled-quiz');
-                    }
+            // Update sidebar active state
+            updateSidebarActiveState();
+
+            if (currentQuestionIndex < quizQuestions.length) {
+                const q = quizQuestions[currentQuestionIndex];
+                questionText.textContent = q.question;
+                optionsContainer.innerHTML = ''; // Clear previous options
+
+                q.options.forEach((option, optionIndex) => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('quiz-option-btn');
+                    button.dataset.index = optionIndex; // Store option index
+                    button.addEventListener('click', () => selectOption(button, q.answer));
+                    optionsContainer.appendChild(button);
                 });
+
+                // If question was previously answered, re-select the answer and show feedback
+                const performance = questionPerformanceData[currentQuestionIndex];
+                if (performance) {
+                    const previouslySelectedButton = Array.from(optionsContainer.children).find(
+                        btn => btn.textContent === performance.userAnswer
+                    );
+                    if (previouslySelectedButton) {
+                        selectOption(previouslySelectedButton, q.answer, true); // Pass true to prevent re-recording time/score
+                    }
+                }
+                questionStartTime = performance.now(); // Record start time for the question
             } else {
-                quizActive = false; // Reset if navigating away from quiz (e.g., via reload)
-                navButtons.forEach(btn => {
-                    btn.classList.remove('disabled-quiz');
+                endQuiz();
+            }
+        }
+
+        function selectOption(selectedButton, correctAnswer, isReloading = false) {
+            if (selectedOptionButton && !isReloading) return; // Prevent re-selection unless reloading
+
+            const questionEndTime = performance.now(); // Record end time
+            const timeTaken = ((questionEndTime - questionStartTime) / 1000).toFixed(2); // Time in seconds
+
+            selectedOptionButton = selectedButton; // Mark this option as selected
+            nextButton.disabled = false; // Enable next button
+
+            const allOptionButtons = optionsContainer.querySelectorAll('.quiz-option-btn');
+            allOptionButtons.forEach(btn => {
+                btn.disabled = true; // Disable all options after selection
+                if (btn.textContent === correctAnswer) {
+                    btn.classList.add('correct'); // Highlight correct answer
+                }
+            });
+
+            const isCorrect = (selectedButton.textContent === correctAnswer);
+            if (isCorrect) {
+                if (!isReloading) { // Only update score if not reloading a previously answered question
+                    score++;
+                    scoreSpan.textContent = score;
+                }
+                feedbackDisplay.textContent = 'Correct! ' + quizQuestions[currentQuestionIndex].explanation;
+                feedbackDisplay.classList.remove('hidden');
+                feedbackDisplay.classList.remove('bg-red-100', 'border-red-500', 'text-red-700');
+                feedbackDisplay.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+            } else {
+                selectedButton.classList.add('incorrect'); // Highlight incorrect selection
+                feedbackDisplay.textContent = 'Incorrect. The correct answer was: ' + correctAnswer + '. ' + quizQuestions[currentQuestionIndex].explanation;
+                feedbackDisplay.classList.remove('hidden');
+                feedbackDisplay.classList.remove('bg-green-100', 'border-green-500', 'text-green-700');
+                feedbackDisplay.classList.add('bg-red-100', 'border-red-500', 'text-red-700');
+            }
+
+            // Store performance data for this question if not reloading
+            if (!isReloading) {
+                questionPerformanceData[currentQuestionIndex] = {
+                    question: quizQuestions[currentQuestionIndex].question,
+                    topic: quizQuestions[currentQuestionIndex].topic,
+                    isCorrect: isCorrect,
+                    timeTaken: parseFloat(timeTaken),
+                    userAnswer: selectedButton.textContent // Store user's answer
+                };
+            }
+
+            // Update sidebar button state based on answer
+            const sidebarButton = quizSidebarNav.children[currentQuestionIndex];
+            if (sidebarButton) {
+                sidebarButton.classList.remove('answered-correct', 'answered-incorrect');
+                if (isCorrect) {
+                    sidebarButton.classList.add('answered-correct');
+                } else {
+                    sidebarButton.classList.add('answered-incorrect');
+                }
+            }
+        }
+
+        function endQuiz() {
+            questionDisplay.classList.add('hidden'); // Hide current question display
+            nextButton.classList.add('hidden');
+            restartButton.classList.add('hidden'); // Hide current restart button
+
+            // Show Quiz Summary
+            quizSummary.classList.remove('hidden');
+            finalScoreSpan.textContent = score;
+            totalQuestionsSummarySpan.textContent = quizQuestions.length;
+
+            analyzeWeakTopics();
+        }
+
+        function analyzeWeakTopics() {
+            const topicStats = {}; // { "Topic Name": { correct: 0, total: 0, totalTime: 0, incorrectCount: 0 } }
+
+            questionPerformanceData.forEach(data => {
+                if (!data) return; // Skip if question not attempted
+
+                if (!topicStats[data.topic]) {
+                    topicStats[data.topic] = { correct: 0, total: 0, totalTime: 0, incorrectCount: 0 };
+                }
+                topicStats[data.topic].total++;
+                topicStats[data.topic].totalTime += data.timeTaken;
+                if (data.isCorrect) {
+                    topicStats[data.topic].correct++;
+                } else {
+                    topicStats[data.topic].incorrectCount++;
+                }
+            });
+
+            const topicsForAnalysis = [];
+            for (const topic in topicStats) {
+                const stats = topicStats[topic];
+                const accuracy = (stats.correct / stats.total) * 100;
+                const avgTime = stats.totalTime / stats.total;
+                topicsForAnalysis.push({
+                    name: topic,
+                    accuracy: accuracy, // Keep internally for weak topic logic
+                    incorrectCount: stats.incorrectCount, // Keep internally for weak topic logic
+                    correct: stats.correct, // For display
+                    total: stats.total, // For display
+                    avgTime: avgTime // For display
                 });
             }
-            window.scrollTo(0, 0);
-        }
-        
-        function setupProteinSection() {
-            const flowContainer = document.getElementById('protein-synthesis-flow');
-            const explanationDiv = document.getElementById('protein-synthesis-explanation');
-            proteinSynthesisData.forEach((item, index) => {
-                const stepDiv = document.createElement('div');
-                stepDiv.className = 'interactive-step p-4 bg-white border border-gray-200 rounded-lg shadow-sm text-center';
-                stepDiv.textContent = item.step;
-                stepDiv.dataset.index = index;
-                flowContainer.appendChild(stepDiv);
-                if(index < proteinSynthesisData.length - 1) {
-                    const arrow = document.createElement('div');
-                    arrow.className = 'text-center text-2xl text-gray-400';
-                    arrow.textContent = '↓';
-                    flowContainer.appendChild(arrow);
+
+            // Sort by lowest accuracy first, then by highest incorrect count, then by longest average time
+            topicsForAnalysis.sort((a, b) => {
+                if (a.accuracy !== b.accuracy) {
+                    return a.accuracy - b.accuracy; // Lower accuracy first
                 }
-            });
-            
-            flowContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('interactive-step')) {
-                    const index = e.target.dataset.index;
-                    explanationDiv.innerHTML = proteinSynthesisData[index].explanation;
-                    flowContainer.querySelectorAll('.interactive-step').forEach(s => s.classList.remove('active'));
-                    e.target.classList.add('active');
+                if (a.incorrectCount !== b.incorrectCount) {
+                    return b.incorrectCount - a.incorrectCount; // More incorrect answers first
                 }
+                return b.avgTime - a.avgTime; // Longer average time first
             });
 
-            const structureInfo = document.getElementById('protein-structure-info');
-            const structureTabs = document.querySelectorAll('#proteins .interactive-tab');
-            structureTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const target = tab.dataset.target;
-                    structureInfo.innerHTML = proteinStructureData[target];
-                    structureTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                });
-            });
+            weakTopicsAnalysisDiv.innerHTML = '';
+            if (topicsForAnalysis.length === 0 || questionPerformanceData.every(data => data === null)) {
+                weakTopicsAnalysisDiv.innerHTML = '<p>No questions attempted yet to analyze weak topics.</p>';
+                return;
+            }
 
-            const typesGrid = document.getElementById('protein-types-grid');
-            proteinTypesData.forEach(pType => {
-                const card = document.createElement('div');
-                card.className = 'card bg-white p-6 rounded-lg border border-gray-200 text-center';
-                card.innerHTML = `<div class="text-4xl mb-4">${pType.icon}</div><h4 class="font-bold text-xl mb-2">${pType.name}</h4><p class="text-gray-600">${pType.description}</p>`;
-                typesGrid.appendChild(card);
-            });
-        }
-        
-        function setupCarbsSection() {
-            const flowContainer = document.getElementById('carb-usage-flow');
-            const explanationDiv = document.getElementById('carb-usage-explanation');
-            carbUsageData.forEach((item, index) => {
-                const stepDiv = document.createElement('div');
-                stepDiv.className = 'interactive-step p-4 bg-white border border-gray-200 rounded-lg shadow-sm text-center';
-                stepDiv.textContent = item.step;
-                stepDiv.dataset.index = index;
-                flowContainer.appendChild(stepDiv);
-                if(index < carbUsageData.length - 1) {
-                    const arrow = document.createElement('div');
-                    arrow.className = 'text-center text-2xl text-gray-400';
-                    arrow.textContent = '↓';
-                    flowContainer.appendChild(arrow);
+            let hasWeakTopics = false;
+            topicsForAnalysis.forEach(topic => {
+                // A topic is considered "weak" if its accuracy is below 70% AND at least one question was answered for that topic,
+                // OR if more than half the questions in that topic were answered incorrectly (and there's more than one question).
+                const isWeak = (topic.accuracy < 70 && topic.total > 0) || (topic.incorrectCount > (topic.total / 2) && topic.total > 1);
+
+                if (isWeak) {
+                    hasWeakTopics = true;
+                    const topicElement = document.createElement('div');
+                    topicElement.classList.add('weak-topic-item');
+                    topicElement.innerHTML = `
+                        <p class="font-semibold text-navy-blue">${topic.name}</p>
+                        <p class="text-sm">Correct: ${topic.correct} / ${topic.total} questions</p>
+                        <p class="text-sm">Average time per question: ${topic.avgTime.toFixed(2)} seconds</p>
+                    `;
+                    weakTopicsAnalysisDiv.appendChild(topicElement);
                 }
             });
 
-             flowContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('interactive-step')) {
-                    const index = e.target.dataset.index;
-                    explanationDiv.innerHTML = carbUsageData[index].explanation;
-                    flowContainer.querySelectorAll('.interactive-step').forEach(s => s.classList.remove('active'));
-                    e.target.classList.add('active');
-                }
-            });
-
-            const typesGrid = document.getElementById('carb-types-grid');
-            carbTypesData.forEach(cType => {
-                const card = document.createElement('div');
-                card.className = `card p-4 rounded-lg border border-gray-200 ${cType.color}`;
-                card.innerHTML = `<h4 class="font-semibold text-lg">${cType.name}</h4><p class="text-gray-700 text-sm">${cType.description}</p>`;
-                typesGrid.appendChild(card);
-            });
+            if (!hasWeakTopics) {
+                weakTopicsAnalysisDiv.innerHTML = '<p class="text-teal-green font-semibold">Great job! No significant weak topics identified. Keep up the excellent work!</p>';
+            }
         }
 
-        function setupCompareSection() {
-            const ctx = document.getElementById('comparisonChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Protein', 'Carbohydrate'],
-                    datasets: [{
-                        label: 'Primary Role',
-                        data: [50, 100], 
-                        backgroundColor: [ 'rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)'],
-                        borderColor: [ 'rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
-                        borderWidth: 1,
-                        axis: 'y',
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                             callbacks: {
-                                label: function(context) {
-                                    if (context.raw === 50) return 'Build & Repair';
-                                    if (context.raw === 100) return 'Provide Energy';
-                                    return '';
-                                }
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Primary Role: Build vs. Fuel'
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: { display: false }
-                        }
-                    }
-                }
-            });
-
-            const appContainer = document.getElementById('application-container');
-            const appInfo = document.getElementById('application-info');
-            Object.keys(applicationData).forEach(key => {
-                const btn = document.createElement('button');
-                btn.className = 'interactive-tab p-3 rounded-md bg-white border border-gray-300 capitalize';
-                btn.textContent = key;
-                btn.dataset.target = key;
-                appContainer.appendChild(btn);
-            });
-            appContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('interactive-tab')) {
-                    const target = e.target.dataset.target;
-                    appInfo.innerHTML = applicationData[target];
-                    appContainer.querySelectorAll('.interactive-tab').forEach(t => t.classList.remove('active'));
-                    e.target.classList.add('active');
-                }
-            });
+        // --- Sidebar Functions ---
+        function generateSidebarNav() {
+            quizSidebarNav.innerHTML = ''; // Clear existing buttons
+            for (let i = 0; i < quizQuestions.length; i++) {
+                const sidebarBtn = document.createElement('button');
+                sidebarBtn.textContent = i + 1;
+                sidebarBtn.classList.add('quiz-sidebar-btn');
+                sidebarBtn.dataset.questionIndex = i;
+                sidebarBtn.addEventListener('click', () => loadQuestion(i));
+                quizSidebarNav.appendChild(sidebarBtn);
+            }
+            updateSidebarActiveState(); // Set initial active state
         }
 
-        function setupQuizSection() {
-            const quizContainer = document.getElementById('quiz-container');
-            const resultDiv = document.getElementById('quiz-result');
-            let score = 0;
+        function updateSidebarActiveState() {
+            const sidebarButtons = quizSidebarNav.querySelectorAll('.quiz-sidebar-btn');
+            sidebarButtons.forEach((btn, index) => {
+                btn.classList.remove('active-question');
+                // Remove previous answered states before applying new ones
+                btn.classList.remove('answered-correct', 'answered-incorrect');
 
-            // Clear previous quiz content if re-setting up
-            quizContainer.innerHTML = '';
-            resultDiv.textContent = '';
+                if (index === currentQuestionIndex) {
+                    btn.classList.add('active-question');
+                }
 
-            quizData.forEach((item, index) => {
-                const questionBlock = document.createElement('div');
-                questionBlock.className = 'mb-6';
-                questionBlock.id = `question-${index}`; // Add ID for easy access
-
-                const questionText = document.createElement('p');
-                questionText.className = 'font-semibold text-lg mb-3';
-                questionText.textContent = `${item.question}`;
-                questionBlock.appendChild(questionText);
-
-                const optionsContainer = document.createElement('div');
-                optionsContainer.className = 'space-y-2';
-                
-                const shuffledOptions = [...item.options].sort(() => Math.random() - 0.5);
-
-                shuffledOptions.forEach(option => {
-                    const label = document.createElement('label');
-                    label.className = 'block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer';
-                    const input = document.createElement('input');
-                    input.type = 'radio';
-                    input.name = `question-${index}`;
-                    input.value = option;
-                    input.className = 'mr-3';
-                    label.appendChild(input);
-                    label.append(option);
-                    optionsContainer.appendChild(label);
-                });
-                questionBlock.appendChild(optionsContainer);
-                quizContainer.appendChild(questionBlock);
-            });
-            
-            const submitButton = document.createElement('button');
-            submitButton.textContent = 'Check Answers';
-            submitButton.className = 'w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors mt-4';
-            quizContainer.appendChild(submitButton);
-
-            submitButton.addEventListener('click', () => {
-                score = 0;
-                quizData.forEach((item, index) => {
-                    const questionBlock = document.getElementById(`question-${index}`);
-                    const selected = questionBlock.querySelector(`input[name="question-${index}"]:checked`);
-                    const explanationDiv = document.createElement('div');
-                    explanationDiv.className = 'explanation';
-
-                    // Disable all radio buttons for this question after submission
-                    questionBlock.querySelectorAll('input[type="radio"]').forEach(radio => radio.disabled = true);
-
-                    if (selected) {
-                        const parentLabel = selected.parentElement;
-                        parentLabel.style.borderWidth = '2px';
-                        if (selected.value === item.answer) {
-                            score++;
-                            parentLabel.style.borderColor = 'green';
-                            explanationDiv.classList.add('correct');
-                            explanationDiv.textContent = item.correctExplanation; // Removed prefix
-                        } else {
-                           parentLabel.style.borderColor = 'red';
-                           explanationDiv.classList.add('wrong');
-                           explanationDiv.textContent = `The correct answer was "${item.answer}". ${item.wrongExplanation}`; // Removed prefix
-                        }
+                // Apply answered state if data exists
+                const performance = questionPerformanceData[index];
+                if (performance) {
+                    if (performance.isCorrect) {
+                        btn.classList.add('answered-correct');
                     } else {
-                        // If no answer selected, mark as wrong and show explanation
-                        explanationDiv.classList.add('wrong');
-                        explanationDiv.textContent = `No answer selected. The correct answer was "${item.answer}". ${item.wrongExplanation}`; // Removed prefix
+                        btn.classList.add('answered-incorrect');
                     }
-                    // Append explanation to the question block
-                    questionBlock.appendChild(explanationDiv);
-                });
-                resultDiv.textContent = `You scored ${score} out of ${quizData.length}!`;
-                submitButton.disabled = true;
-                submitButton.textContent = 'Completed!';
-                submitButton.classList.add('bg-gray-500', 'hover:bg-gray-500');
-
-                // Re-enable navigation after quiz submission
-                quizActive = false;
-                navButtons.forEach(btn => {
-                    btn.classList.remove('disabled-quiz');
-                    btn.style.pointerEvents = 'auto'; // Ensure pointer events are re-enabled
-                });
+                }
             });
         }
 
-        document.addEventListener('DOMContentLoaded', init);
+
+        // --- Tab Functions ---
+
+        function setupTabs() {
+            tabButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const tabId = button.dataset.tab;
+
+                    // Deactivate all buttons and hide all content
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    // Activate the clicked button
+                    button.classList.add('active');
+
+                    // Show the corresponding content
+                    const targetContent = document.getElementById(tabId);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+
+                    // Special handling for the quiz tab
+                    if (tabId === 'quiz-content') {
+                        startQuiz(); // Start the quiz when quiz tab is opened
+                    }
+                });
+            });
+
+            // Activate the first tab by default on page load
+            if (tabButtons.length > 0) {
+                tabButtons[0].click();
+            }
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', setupTabs);
+        nextButton.addEventListener('click', () => {
+            if (selectedOptionButton) { // Only proceed if an option was selected
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            }
+        });
+        restartButton.addEventListener('click', startQuiz); // For the in-quiz restart button
+        summaryRestartBtn.addEventListener('click', startQuiz); // For the summary restart button
+
     </script>
 </body>
 </html>
