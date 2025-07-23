@@ -96,8 +96,8 @@
             color: #333333; /* Dark Charcoal text */
         }
         .quiz-option-btn.incorrect {
-            background-color: #F9F9F9; /* Use main background color for incorrect option background */
-            border: 2px solid #333333; /* Dark Charcoal Gray border for incorrect */
+            background-color: #F9E8E4; /* Lighter Muted Coral/Red-Orange */
+            border: 2px solid #E76F51; /* Muted Coral/Red-Orange */
             color: #333333; /* Dark Charcoal text */
         }
         .quiz-feedback {
@@ -105,7 +105,19 @@
             margin-top: 1rem;
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
+            border: 1px solid transparent; /* Default border for feedback */
         }
+        .feedback-correct-style {
+            background-color: #D9E8D0; /* Lighter Moss Green */
+            border-color: #6A994E; /* Moss Green */
+            color: #333333; /* Dark Charcoal text */
+        }
+        .feedback-incorrect-style {
+            background-color: #F9E8E4; /* Lighter Muted Coral/Red-Orange */
+            border-color: #E76F51; /* Muted Coral/Red-Orange */
+            color: #333333; /* Dark Charcoal text */
+        }
+
         .text-teal-green {
             color: #2E8B8B; /* Teal Green */
         }
@@ -143,7 +155,6 @@
             border-radius: 1.5rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             margin-top: 1.5rem; /* Space from content above */
-            /* Removed sticky and overflow-y as it's now part of main flow */
         }
         .quiz-sidebar-grid {
             display: grid;
@@ -162,7 +173,7 @@
             transition: background-color 0.2s ease, transform 0.1s ease;
             cursor: pointer;
             color: #333333;
-            border: 1px solid transparent; /* Default border */
+            border: 1px solid #333333; /* Charcoal Gray border for non-attempted */
         }
         .quiz-sidebar-btn:hover {
             background-color: #E0E2E4;
@@ -1200,15 +1211,13 @@
                     scoreSpan.textContent = score;
                 }
                 feedbackDisplay.textContent = 'Correct! ' + quizQuestions[currentQuestionIndex].explanation;
-                feedbackDisplay.classList.remove('hidden');
-                feedbackDisplay.classList.remove('bg-red-100', 'border-red-500', 'text-red-700');
-                feedbackDisplay.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+                feedbackDisplay.classList.remove('hidden', 'feedback-incorrect-style');
+                feedbackDisplay.classList.add('feedback-correct-style');
             } else {
                 selectedButton.classList.add('incorrect'); // Highlight incorrect selection
                 feedbackDisplay.textContent = 'Incorrect. The correct answer was: ' + correctAnswer + '. ' + quizQuestions[currentQuestionIndex].explanation;
-                feedbackDisplay.classList.remove('hidden');
-                feedbackDisplay.classList.remove('bg-green-100', 'border-green-500', 'text-green-700');
-                feedbackDisplay.classList.add('bg-red-100', 'border-red-500', 'text-red-700');
+                feedbackDisplay.classList.remove('hidden', 'feedback-correct-style');
+                feedbackDisplay.classList.add('feedback-incorrect-style');
             }
 
             // Store performance data for this question if not reloading
