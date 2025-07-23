@@ -29,6 +29,7 @@
         .header-bg {
             background-color: #0A2F5C; /* Deep Navy Blue header */
             color: #FFFFFF;
+            /* Removed 'position: sticky; top: 0; z-index: 50;' to make it scroll with the page */
         }
         /* Styles for tabs */
         .tab-button {
@@ -203,7 +204,7 @@
 <body class="bg-gray-100 text-gray-800">
 
     <!-- Header and Navigation (Tabs) -->
-    <header class="header-bg shadow-lg py-4 sticky top-0 z-50">
+    <header class="header-bg shadow-lg py-4"> <!-- Removed sticky, top-0, z-50 to make it scroll -->
         <div class="container flex flex-col md:flex-row justify-between items-center">
             <h1 class="text-3xl font-bold text-white mb-4 md:mb-0">Journey into Biochemistry</h1>
             <nav class="w-full md:w-auto">
