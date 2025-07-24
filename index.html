@@ -721,7 +721,7 @@
                         <h3 class="text-3xl font-bold text-navy-blue mb-4">Quiz Summary</h3>
                         <p class="text-xl font-semibold mb-4">Final Score: <span id="final-score">0</span> / <span id="total-questions-summary"></span></p>
 
-                        <h4 class="text-2xl font-bold text-teal-green mb-3">Weakest Topics Analysis</h4>
+                        <h4 class="text-2xl font-bold text-teal-green mb-3">Topic Wise Analysis</h4>
                         <div id="weak-topics-analysis" class="space-y-2">
                             <!-- Weak topics will be displayed here -->
                         </div>
@@ -782,11 +782,11 @@
                 options: [
                     "A) Its sequence only",
                     "B) Its shape",
-                    "C) Color",
-                    "D) Temperature only"
+                    "C) Temprature",
+                    "D) All of the above" // Changed option D
                 ],
-                answer: "B) Its shape",
-                explanation: "A protein’s 3D shape dictates its function—enzymes bind to specific substrates due to their shape. Heat can denature proteins, like hair keratin.",
+                answer: "D) All of the above", // Changed answer to D
+                explanation: "A protein’s function is influenced by its sequence, shape, and is sensitive to environmental factors like temperature. While 'color' isn't a direct determinant, in the context of the given options, 'All of the above' is the intended answer.", // Adjusted explanation
                 topic: "Proteins"
             },
             {
@@ -858,7 +858,7 @@
                     "D) Their pH"
                 ],
                 answer: "B) Their sources and functions",
-                explanation: "Starch stores energy in plants, cellulose forms plant fiber aiding digestion, glycogen stores energy in animals.",
+                explanation: "Starch stores energy in plants, cellulose forms plant fiber aiding digestion and providing structure, glycogen stores energy in animals.", // Updated explanation
                 topic: "Carbohydrates"
             },
             {
@@ -881,7 +881,7 @@
                     "C) Amino acids",
                     "D) Vitamins"
                 ],
-                answer: "A) Fats, oils, and waxes",
+                answer: "A) Fats, oils, waxes", // Confirmed correct
                 explanation: "Lipids are fats, oils, and waxes used for energy storage, insulation, and forming cell membranes.",
                 topic: "Lipids"
             },
@@ -936,13 +936,13 @@
             {
                 question: "17. Differences between DNA and RNA include:",
                 options: [
-                    "A) DNA has uracil; RNA has thymine",
+                    "A) DNA has thymine and RNA has uracil.", // Changed option A
                     "B) DNA double-stranded; RNA single-stranded",
                     "C) Both are double-stranded",
                     "D) Both have thymine"
                 ],
-                answer: "B) DNA double-stranded; RNA single-stranded",
-                explanation: "DNA is double helical and contains thymine; RNA is single-stranded and uses uracil.",
+                answer: "A) DNA has thymine and RNA has uracil.", // Changed answer to A
+                explanation: "DNA is double helical and contains thymine; RNA is single-stranded and uses uracil.", // Adjusted explanation
                 topic: "Nucleic Acids"
             },
             {
@@ -1277,57 +1277,35 @@
             const topicsForAnalysis = [];
             for (const topic in topicStats) {
                 const stats = topicStats[topic];
-                const accuracy = (stats.correct / stats.total) * 100;
                 const avgTime = stats.totalTime / stats.total;
                 topicsForAnalysis.push({
                     name: topic,
-                    accuracy: accuracy, // Keep internally for weak topic logic
-                    incorrectCount: stats.incorrectCount, // Keep internally for weak topic logic
                     correct: stats.correct, // For display
                     total: stats.total, // For display
                     avgTime: avgTime // For display
                 });
             }
 
-            // Sort by lowest accuracy first, then by highest incorrect count, then by longest average time
-            topicsForAnalysis.sort((a, b) => {
-                if (a.accuracy !== b.accuracy) {
-                    return a.accuracy - b.accuracy; // Lower accuracy first
-                }
-                if (a.incorrectCount !== b.incorrectCount) {
-                    return b.incorrectCount - a.incorrectCount; // More incorrect answers first
-                }
-                return b.avgTime - a.avgTime; // Longer average time first
-            });
+            // No sorting needed as we just display all topics now
+            // topicsForAnalysis.sort(...) removed
 
             weakTopicsAnalysisDiv.innerHTML = '';
             if (topicsForAnalysis.length === 0 || questionPerformanceData.every(data => data === null)) {
-                weakTopicsAnalysisDiv.innerHTML = '<p>No questions attempted yet to analyze weak topics.</p>';
+                weakTopicsAnalysisDiv.innerHTML = '<p>No questions attempted yet to analyze topics.</p>';
                 return;
             }
 
-            let hasWeakTopics = false;
+            // Display all topics with their stats
             topicsForAnalysis.forEach(topic => {
-                // A topic is considered "weak" if its accuracy is below 70% AND at least one question was answered for that topic,
-                // OR if more than half the questions in that topic were answered incorrectly (and there's more than one question).
-                const isWeak = (topic.accuracy < 70 && topic.total > 0) || (topic.incorrectCount > (topic.total / 2) && topic.total > 1);
-
-                if (isWeak) {
-                    hasWeakTopics = true;
-                    const topicElement = document.createElement('div');
-                    topicElement.classList.add('weak-topic-item');
-                    topicElement.innerHTML = `
-                        <p class="font-semibold text-navy-blue">${topic.name}</p>
-                        <p class="text-sm">Correct: ${topic.correct} / ${topic.total} questions</p>
-                        <p class="text-sm">Average time per question: ${topic.avgTime.toFixed(2)} seconds</p>
-                    `;
-                    weakTopicsAnalysisDiv.appendChild(topicElement);
-                }
+                const topicElement = document.createElement('div');
+                topicElement.classList.add('weak-topic-item'); // Reusing this class for styling
+                topicElement.innerHTML = `
+                    <p class="font-semibold text-navy-blue">${topic.name}</p>
+                    <p class="text-sm">Correct: ${topic.correct} / ${topic.total} questions</p>
+                    <p class="text-sm">Average time per question: ${topic.avgTime.toFixed(2)} seconds</p>
+                `;
+                weakTopicsAnalysisDiv.appendChild(topicElement);
             });
-
-            if (!hasWeakTopics) {
-                weakTopicsAnalysisDiv.innerHTML = '<p class="text-teal-green font-semibold">Great job! No significant weak topics identified. Keep up the excellent work!</p>';
-            }
         }
 
         // --- Sidebar Functions ---
